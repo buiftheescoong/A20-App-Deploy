@@ -12,8 +12,23 @@ build/
 .pytest_cache/
 .mypy_cache/
 
+# Node
+node_modules/
+.next/
+out/
+dist/
+
 # OS
 .DS_Store
+Thumbs.db
 
 # AI logs — tracked structure, ignored content
 .ai-log/*.jsonl
+
+# IDE
+.vscode/
+.idea/
+
+# Generated
+*.docx
+!backend/assets/blank_template.docx
