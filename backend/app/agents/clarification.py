@@ -45,7 +45,8 @@ async def start_clarification(
     # Create clarification session in DB
     session = create_clarification_session(task_id, user_id, questions)
     logger.info(
-        f"Clarification session created for task {task_id} with {len(questions)} questions"
+        f"Clarification session created for task {task_id} "
+        f"with {len(questions)} questions"
     )
 
     return session

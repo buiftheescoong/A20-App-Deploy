@@ -19,7 +19,8 @@ client = AsyncOpenAI(api_key=settings.OPENAI_API_KEY)
 
 GENERATOR_SYSTEM_PROMPT_5E = """Bạn là chuyên gia thiết kế giáo án theo chương trình GDPT 2018.
 
-Bạn PHẢI sinh output dưới dạng JSON theo schema sau — KHÔNG ĐƯỢC thêm bất kỳ key nào ngoài schema.
+Bạn PHẢI sinh output dưới dạng JSON theo schema sau — 
+KHÔNG ĐƯỢC thêm bất kỳ key nào ngoài schema.
 Bạn KHÔNG ĐƯỢC bịa đặt kiến thức không có trong [RAG_CONTEXT] hoặc [CLARIFICATION_ANSWERS].
 
 Phương pháp dạy học: 5E

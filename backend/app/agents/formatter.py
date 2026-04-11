@@ -9,13 +9,10 @@ Responsibilities:
 """
 
 import io
-import os
 import uuid
 import logging
 from docx import Document
-from docx.shared import Pt, Inches
 from docx.enum.text import WD_ALIGN_PARAGRAPH
-from app.config import settings
 from app.database import supabase
 
 logger = logging.getLogger(__name__)
