@@ -1,0 +1,30 @@
+# Backend — Soạn Giáo Án Thông Minh
+# Python 3.11+
+
+# ─── Core Framework ────────────────────────────────────────────────
+fastapi==0.115.0
+uvicorn[standard]==0.30.0
+python-dotenv==1.0.1
+pydantic==2.9.0
+
+# ─── Supabase ──────────────────────────────────────────────────────
+supabase==2.7.0
+
+# ─── AI / LLM ─────────────────────────────────────────────────────
+openai==1.50.0
+langchain==0.3.0
+langgraph==0.2.0
+tenacity==9.0.0
+
+# ─── Google Gemini (fallback model) ────────────────────────────────
+google-generativeai==0.8.0
+
+# ─── Document Export ───────────────────────────────────────────────
+python-docx==1.1.2
+
+# ─── PDF Parsing (for file upload) ─────────────────────────────────
+pdfplumber==0.11.0
+
+# ─── Utilities ─────────────────────────────────────────────────────
+httpx==0.27.0
+python-multipart==0.0.9
