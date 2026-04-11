@@ -10,6 +10,8 @@ supabase==2.7.0
 # ─── AI / LLM ─────────────────────────────────────────────────────
 openai==1.50.0
 langchain>=0.3.0
+langchain-community>=0.3.0
+langchain-text-splitters>=0.3.0
 langgraph>=0.2.0
 tenacity>=8.1.0,<9.0.0
 
@@ -29,4 +31,4 @@ black==24.4.2
 flake8==7.1.0
 pytest==8.2.2
 pytest-asyncio==0.23.7
-pydantic-settings==2.3.4
+pydantic-settings>=2.4.1

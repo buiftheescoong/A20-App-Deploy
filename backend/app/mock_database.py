@@ -5,8 +5,8 @@ from datetime import datetime
 from pathlib import Path
 from typing import Optional, Any
 
-# Đường dẫn file mock_db.json tại root
-MOCK_DB_PATH = Path(__name__).parent.parent.parent / "mock_db.json"
+# Đường dẫn file mock_db.json tại backend/mock_db.json
+MOCK_DB_PATH = Path(__file__).parent.parent / "mock_db.json"
 
 
 class MockTable:
@@ -24,41 +24,48 @@ class MockTable:
 
         self.data[self.table_name].append(record)
         self._save()
+        self._current_query = [record]
         return self
 
     def select(self, *args, **kwargs):
         # Đơn giản hóa: trả về toàn bộ dữ liệu hiện có để filter sau
-        self._current_query = self.data[self.table_name]
+        self._current_query = self.data[self.table_name].copy()
         return self
 
     def eq(self, column: str, value: Any):
-        self._current_query = [r for r in self._current_query if r.get(column) == value]
+        if hasattr(self, "_current_query"):
+            self._current_query = [r for r in self._current_query if r.get(column) == value]
         return self
 
     def single(self):
-        self.data = self._current_query[0] if self._current_query else None
+        if hasattr(self, "_current_query"):
+            self._single_record = self._current_query[0] if self._current_query else None
         return self
 
     def order(self, column: str, desc: bool = False):
-        self._current_query.sort(key=lambda x: x.get(column), reverse=desc)
+        if hasattr(self, "_current_query"):
+            self._current_query.sort(key=lambda x: x.get(column, ""), reverse=desc)
         return self
 
     def range(self, start: int, end: int):
-        self._current_query = self._current_query[start : end + 1]
+        if hasattr(self, "_current_query"):
+            self._current_query = self._current_query[start : end + 1]
         return self
 
     def update(self, updates: dict):
-        for r in self._current_query:
-            r.update(updates)
-        self._save()
+        if hasattr(self, "_current_query"):
+            for r in self._current_query:
+                r.update(updates)
+            self._save()
         return self
 
     def delete(self):
-        ids_to_delete = [r["id"] for r in self._current_query]
-        self.data[self.table_name] = [
-            r for r in self.data[self.table_name] if r["id"] not in ids_to_delete
-        ]
-        self._save()
+        if hasattr(self, "_current_query"):
+            ids_to_delete = [r["id"] for r in self._current_query]
+            self.data[self.table_name] = [
+                r for r in self.data[self.table_name] if r["id"] not in ids_to_delete
+            ]
+            self._save()
         return self
 
     def execute(self):
@@ -67,14 +74,23 @@ class MockTable:
             def __init__(self, data):
                 self.data = data
 
-        # Nếu là chuỗi filter, trả về kết quả filter
+        # Nếu đã gọi single(), ưu tiên trả về 1 bản ghi duy nhất
+        if hasattr(self, "_single_record"):
+            res = Response(self._single_record)
+            del self._single_record
+            if hasattr(self, "_current_query"):
+                del self._current_query
+            return res
+
+        # Nếu là chuỗi filter hoặc sau khi insert/update, trả về danh sách kết quả
         if hasattr(self, "_current_query"):
             res = Response(self._current_query)
             del self._current_query
             return res
 
-        # Nếu đã gọi single(), self.data sẽ chứa 1 bản ghi hoặc None
-        return Response(self.data)
+        # Fallback an toàn (trả về list rỗng nếu không có context)
+        return Response([])
+
 
     def _save(self):
         with open(MOCK_DB_PATH, "w", encoding="utf-8") as f:
