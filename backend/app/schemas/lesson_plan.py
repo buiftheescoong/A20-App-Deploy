@@ -6,11 +6,12 @@ This is the API contract between backend and frontend. DO NOT change after kicko
 from pydantic import BaseModel, Field
 from typing import Optional, Literal
 
-
 # ─── Lesson Plan Content Types ─────────────────────────────────────
+
 
 class SectionContent(BaseModel):
     """A single section/activity of the lesson plan."""
+
     title: str
     content: str
     duration: int  # phút
@@ -18,6 +19,7 @@ class SectionContent(BaseModel):
 
 class LessonSections5E(BaseModel):
     """5E model sections."""
+
     engage: SectionContent
     explore: SectionContent
     explain: SectionContent
@@ -27,13 +29,15 @@ class LessonSections5E(BaseModel):
 
 class LessonSections3Phase(BaseModel):
     """3-Phase model sections."""
-    opening: SectionContent        # Mở đầu
-    knowledge: SectionContent      # Hình thành kiến thức
-    practice: SectionContent       # Luyện tập
+
+    opening: SectionContent  # Mở đầu
+    knowledge: SectionContent  # Hình thành kiến thức
+    practice: SectionContent  # Luyện tập
 
 
 class LessonMetadata(BaseModel):
     """Metadata for a lesson plan."""
+
     subject: str
     grade: str
     topic: str
@@ -46,12 +50,14 @@ class LessonMetadata(BaseModel):
 
 class QualityResult(BaseModel):
     """Quality check result."""
+
     status: Literal["PASSED", "FAILED"] = "FAILED"
     errors: list[dict] = []  # [{section, issue, suggestion}]
 
 
 class ClarificationSession(BaseModel):
     """Clarification session when RAG confidence is low."""
+
     task_id: str
     questions: list[str]
     answers: list[dict] = []  # [{question, answer}]
@@ -60,6 +66,7 @@ class ClarificationSession(BaseModel):
 
 class LessonPlanJSON(BaseModel):
     """Full lesson plan JSON — the core output of the pipeline."""
+
     metadata: LessonMetadata
     sections: dict  # Can be 5E or 3-phase format
     rag_sources: list[str] = []
@@ -69,8 +76,10 @@ class LessonPlanJSON(BaseModel):
 
 # ─── API Request/Response Models ───────────────────────────────────
 
+
 class GenerateRequest(BaseModel):
     """POST /api/generate request body."""
+
     subject: str
     grade: str
     topic: str
@@ -80,6 +89,7 @@ class GenerateRequest(BaseModel):
 
 class EditRequest(BaseModel):
     """POST /api/edit request body."""
+
     lesson_plan_id: str
     section_id: str  # "engage" | "explore" | "explain" | etc.
     edit_prompt: str  # "Thiết kế lại thành minigame 10 phút"
@@ -87,12 +97,14 @@ class EditRequest(BaseModel):
 
 class CheckRequest(BaseModel):
     """POST /api/check request body."""
+
     lesson_plan_id: Optional[str] = None
     # File upload handled separately via UploadFile
 
 
 class StatusResponse(BaseModel):
     """GET /api/status/{task_id} response."""
+
     task_id: str
     status: Literal[
         "pending", "clarifying", "generating", "retrying", "completed", "failed"
@@ -106,10 +118,12 @@ class StatusResponse(BaseModel):
 
 class ClarificationResponse(BaseModel):
     """GET /api/clarification/{task_id} response."""
+
     task_id: str
     questions: list[str]
 
 
 class ClarificationAnswerRequest(BaseModel):
     """POST /api/clarification/{task_id} request body."""
+
     answers: list[dict]  # [{question, answer}]

@@ -3,18 +3,27 @@ Supabase client and database helper functions.
 Person B owns this file.
 """
 
-from supabase import create_client, Client
-from app.config import settings
-from typing import Optional
 import logging
+from typing import Optional
+from app.config import settings
 
 logger = logging.getLogger(__name__)
 
-# Initialize Supabase client
-supabase: Client = create_client(settings.SUPABASE_URL, settings.SUPABASE_SERVICE_ROLE_KEY)
+# Logic chuyển đổi giữa Real Supabase và Mock Database
+if getattr(settings, "USE_MOCK_DB", False):
+    logger.info("🛠️ Đang sử dụng Mock Database (Offline Mode)")
+    from app.mock_database import mock_supabase as supabase
+else:
+    logger.info("🌐 Đang sử dụng Real Supabase (Cloud Mode)")
+    from supabase import create_client, Client
+
+    supabase: Client = create_client(
+        settings.SUPABASE_URL, settings.SUPABASE_SERVICE_ROLE_KEY
+    )
 
 
 # ─── Lesson Plan Helpers ───────────────────────────────────────────
+
 
 def create_lesson_plan(user_id: str, data: dict) -> dict:
     """Insert a new lesson plan record."""
@@ -34,7 +43,9 @@ def create_lesson_plan(user_id: str, data: dict) -> dict:
 
 def get_lesson_plan(plan_id: str) -> Optional[dict]:
     """Get a lesson plan by ID."""
-    result = supabase.table("lesson_plans").select("*").eq("id", plan_id).single().execute()
+    result = (
+        supabase.table("lesson_plans").select("*").eq("id", plan_id).single().execute()
+    )
     return result.data
 
 
@@ -50,7 +61,9 @@ def get_lesson_plan_by_task_id(task_id: str) -> Optional[dict]:
     return result.data
 
 
-def get_lesson_plans_by_user(user_id: str, limit: int = 20, offset: int = 0) -> list[dict]:
+def get_lesson_plans_by_user(
+    user_id: str, limit: int = 20, offset: int = 0
+) -> list[dict]:
     """Get all lesson plans for a user, paginated."""
     result = (
         supabase.table("lesson_plans")
@@ -65,22 +78,14 @@ def get_lesson_plans_by_user(user_id: str, limit: int = 20, offset: int = 0) -> 
 
 def update_lesson_plan(plan_id: str, updates: dict) -> dict:
     """Update a lesson plan record."""
-    result = (
-        supabase.table("lesson_plans")
-        .update(updates)
-        .eq("id", plan_id)
-        .execute()
-    )
+    result = supabase.table("lesson_plans").update(updates).eq("id", plan_id).execute()
     return result.data[0] if result.data else {}
 
 
 def update_lesson_plan_by_task_id(task_id: str, updates: dict) -> dict:
     """Update a lesson plan record by task_id."""
     result = (
-        supabase.table("lesson_plans")
-        .update(updates)
-        .eq("task_id", task_id)
-        .execute()
+        supabase.table("lesson_plans").update(updates).eq("task_id", task_id).execute()
     )
     return result.data[0] if result.data else {}
 
@@ -93,7 +98,10 @@ def delete_lesson_plan(plan_id: str) -> bool:
 
 # ─── Evaluation Helpers ────────────────────────────────────────────
 
-def create_evaluation(lesson_plan_id: str, is_passed: bool, error_details: list) -> dict:
+
+def create_evaluation(
+    lesson_plan_id: str, is_passed: bool, error_details: list
+) -> dict:
     """Insert an evaluation record."""
     record = {
         "lesson_plan_id": lesson_plan_id,
@@ -106,7 +114,10 @@ def create_evaluation(lesson_plan_id: str, is_passed: bool, error_details: list)
 
 # ─── Clarification Helpers ─────────────────────────────────────────
 
-def create_clarification_session(task_id: str, user_id: str, questions: list[str]) -> dict:
+
+def create_clarification_session(
+    task_id: str, user_id: str, questions: list[str]
+) -> dict:
     """Create a clarification session."""
     record = {
         "task_id": task_id,
@@ -145,10 +156,13 @@ def update_clarification_session(task_id: str, answers: list[dict]) -> dict:
 
 # ─── Blank Template Helper ─────────────────────────────────────────
 
+
 def get_blank_template_url() -> str:
     """Get the public URL of the blank template DOCX from Supabase Storage."""
     try:
-        result = supabase.storage.from_("templates").get_public_url("blank_template.docx")
+        result = supabase.storage.from_("templates").get_public_url(
+            "blank_template.docx"
+        )
         return result
     except Exception as e:
         logger.error(f"Failed to get blank template URL: {e}")

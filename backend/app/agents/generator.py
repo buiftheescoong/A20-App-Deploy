@@ -112,7 +112,9 @@ def _build_user_prompt(
     if rag_context:
         parts.append("\n[RAG_CONTEXT]")
         for i, chunk in enumerate(rag_context):
-            content = chunk.get("content", chunk) if isinstance(chunk, dict) else str(chunk)
+            content = (
+                chunk.get("content", chunk) if isinstance(chunk, dict) else str(chunk)
+            )
             parts.append(f"<source_{i+1}>{content}</source_{i+1}>")
 
     # Clarification answers
@@ -126,7 +128,9 @@ def _build_user_prompt(
     if quality_feedback:
         parts.append("\n[QUALITY_FEEDBACK — Hãy sửa các lỗi sau]")
         for err in quality_feedback:
-            parts.append(f"- Section: {err.get('section', 'N/A')} — {err.get('issue', '')} → Gợi ý: {err.get('suggestion', '')}")
+            parts.append(
+                f"- Section: {err.get('section', 'N/A')} — {err.get('issue', '')} → Gợi ý: {err.get('suggestion', '')}"
+            )
 
     return "\n".join(parts)
 
@@ -140,14 +144,14 @@ async def run_generator(
 ) -> dict:
     """
     Generate a lesson plan using LLM.
-    
+
     Args:
         normalized_input: Parsed user input
         rag_context: Retrieved RAG chunks
         clarification_answers: Teacher's answers to clarification questions
         quality_feedback: Errors from quality checker (for revision)
         model: Override model (for fallback)
-        
+
     Returns:
         Parsed lesson plan JSON dict
     """

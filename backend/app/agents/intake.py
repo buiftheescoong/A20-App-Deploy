@@ -33,19 +33,21 @@ Lưu ý:
 async def run_intake(user_input: dict) -> dict:
     """
     Process user input through the intake agent.
-    
+
     Args:
         user_input: Raw user input dict with subject, grade, topic, objectives, teaching_model
-        
+
     Returns:
         dict with either:
-        - {"out_of_scope": True, "message": "..."} 
+        - {"out_of_scope": True, "message": "..."}
         - {"out_of_scope": False, "normalized": {...}}
     """
     # If input is already structured with required fields, validate directly
     required_fields = ["subject", "grade", "topic"]
-    has_structured = all(field in user_input and user_input[field] for field in required_fields)
-    
+    has_structured = all(
+        field in user_input and user_input[field] for field in required_fields
+    )
+
     if has_structured:
         return {
             "out_of_scope": False,

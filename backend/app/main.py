@@ -28,6 +28,7 @@ logger = logging.getLogger(__name__)
 
 # ─── Lifespan ─────────────────────────────────────────────────────
 
+
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     logger.info("🚀 Soạn Giáo Án Thông Minh — Backend started")
@@ -59,6 +60,7 @@ app.add_middleware(
 
 # ─── Auth Middleware (Simplified) ─────────────────────────────────
 
+
 @app.middleware("http")
 async def auth_middleware(request: Request, call_next):
     """
@@ -72,13 +74,14 @@ async def auth_middleware(request: Request, call_next):
         return response
 
     auth_header = request.headers.get("Authorization", "")
-    
+
     if auth_header.startswith("Bearer "):
         token = auth_header.replace("Bearer ", "")
         # TODO: Verify Supabase JWT and extract user_id
         # For now, use the token as user_id (mock)
         try:
             from app.database import supabase
+
             user_response = supabase.auth.get_user(token)
             request.state.user_id = user_response.user.id
         except Exception:
@@ -101,6 +104,7 @@ app.include_router(lesson_plans.router, tags=["Lesson Plans"])
 
 
 # ─── Health Check ─────────────────────────────────────────────────
+
 
 @app.get("/health")
 async def health_check():

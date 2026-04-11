@@ -24,10 +24,10 @@ logger = logging.getLogger(__name__)
 def create_lesson_plan_docx(plan: dict) -> io.BytesIO:
     """
     Convert a lesson plan JSON to a DOCX document.
-    
+
     Args:
         plan: Lesson plan JSON dict
-        
+
     Returns:
         BytesIO buffer containing the DOCX file
     """
@@ -43,7 +43,9 @@ def create_lesson_plan_docx(plan: dict) -> io.BytesIO:
     doc.add_paragraph(f"Tên bài dạy: {metadata.get('topic', '')}")
     doc.add_paragraph(f"Môn học: {metadata.get('subject', '')}")
     doc.add_paragraph(f"Lớp: {metadata.get('grade', '')}")
-    doc.add_paragraph(f"Thời gian thực hiện: {metadata.get('duration_minutes', 45)} phút")
+    doc.add_paragraph(
+        f"Thời gian thực hiện: {metadata.get('duration_minutes', 45)} phút"
+    )
     doc.add_paragraph(f"Mô hình dạy học: {metadata.get('teaching_model', '5E')}")
 
     # ─── Mục tiêu ─────────────────────────────────────────────────
@@ -151,11 +153,13 @@ async def upload_docx_to_storage(buffer: io.BytesIO, filename: str) -> str:
     try:
         file_bytes = buffer.read()
         path = f"lesson_plans/{filename}"
-        
+
         supabase.storage.from_("documents").upload(
             path,
             file_bytes,
-            file_options={"content-type": "application/vnd.openxmlformats-officedocument.wordprocessingml.document"},
+            file_options={
+                "content-type": "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+            },
         )
 
         url = supabase.storage.from_("documents").get_public_url(path)
@@ -168,11 +172,11 @@ async def upload_docx_to_storage(buffer: io.BytesIO, filename: str) -> str:
 async def run_formatter(plan: dict, is_blank_template: bool = False) -> dict:
     """
     Format and export the lesson plan to DOCX.
-    
+
     Args:
         plan: Lesson plan JSON dict (ignored if is_blank_template=True)
         is_blank_template: Whether to export blank template
-        
+
     Returns:
         dict with docx_url and is_blank_template
     """

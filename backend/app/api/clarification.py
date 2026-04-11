@@ -7,7 +7,10 @@ import logging
 from fastapi import APIRouter, BackgroundTasks, HTTPException
 
 from app.schemas.lesson_plan import ClarificationResponse, ClarificationAnswerRequest
-from app.agents.clarification import get_clarification_status, submit_clarification_answers
+from app.agents.clarification import (
+    get_clarification_status,
+    submit_clarification_answers,
+)
 from app.agents.pipeline import run_pipeline, get_task_state
 
 logger = logging.getLogger(__name__)

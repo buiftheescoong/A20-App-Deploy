@@ -1,5 +1,12 @@
 # Environment
 .env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+backend/.env
+frontend/.env.local
+
 
 # Python
 __pycache__/
@@ -11,6 +18,9 @@ build/
 *.egg-info/
 .pytest_cache/
 .mypy_cache/
+mock_db.json
+*.log
+
 
 # Node
 node_modules/

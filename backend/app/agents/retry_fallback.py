@@ -31,7 +31,7 @@ async def call_with_retry(
 ) -> dict:
     """
     Call the generator with retry logic.
-    
+
     Retries up to MAX_RETRIES times with exponential backoff.
     """
     use_model = model or settings.PRIMARY_MODEL
@@ -68,7 +68,7 @@ async def generate_with_fallback(
 ) -> tuple[dict, str, bool]:
     """
     Generate with full fallback chain.
-    
+
     Returns:
         tuple of (result_dict, model_used, is_blank_template)
     """

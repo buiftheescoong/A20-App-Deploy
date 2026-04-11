@@ -30,7 +30,9 @@ async def check_lesson_plan(request: CheckRequest):
 
     content_json = plan_record.get("content_json")
     if not content_json:
-        raise HTTPException(status_code=400, detail="Lesson plan has no content to check")
+        raise HTTPException(
+            status_code=400, detail="Lesson plan has no content to check"
+        )
 
     result = await run_quality_check(content_json)
 

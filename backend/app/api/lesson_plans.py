@@ -102,10 +102,14 @@ async def export_lesson_plan(plan_id: str):
 
     # Update DB with URL
     from app.database import update_lesson_plan
-    update_lesson_plan(plan_id, {
-        "docx_url": result["docx_url"],
-        "is_blank_template": result["is_blank_template"],
-    })
+
+    update_lesson_plan(
+        plan_id,
+        {
+            "docx_url": result["docx_url"],
+            "is_blank_template": result["is_blank_template"],
+        },
+    )
 
     return {
         "download_url": result["docx_url"],

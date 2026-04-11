@@ -67,11 +67,13 @@ def run_agent_loop(client: Anthropic, user_input: str, max_turns: int = 10) -> s
                 logger.info(f"Calling tool: {block.name}({block.input})")
                 result = execute_tool(block.name, block.input)
                 logger.info(f"Result: {result[:200]}")
-                tool_results.append({
-                    "type": "tool_result",
-                    "tool_use_id": block.id,
-                    "content": result,
-                })
+                tool_results.append(
+                    {
+                        "type": "tool_result",
+                        "tool_use_id": block.id,
+                        "content": result,
+                    }
+                )
 
         if not has_tool_use:
             # No tool calls, return text

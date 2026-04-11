@@ -35,7 +35,7 @@ async def search_knowledge_base(
 ) -> tuple[list[dict], float]:
     """
     Search the RAG knowledge base for relevant content.
-    
+
     Returns:
         tuple of (chunks, top_similarity_score)
     """
@@ -79,7 +79,7 @@ async def run_rag(
 ) -> dict:
     """
     Run the RAG retrieval pipeline.
-    
+
     Returns:
         dict with:
         - rag_context: list of retrieved chunks

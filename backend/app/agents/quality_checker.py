@@ -30,11 +30,13 @@ def check_required_fields(plan: dict) -> list[dict]:
 
     for field in ["subject", "grade", "topic", "duration_minutes"]:
         if not metadata.get(field):
-            errors.append({
-                "section": "metadata",
-                "issue": f"Thiếu trường bắt buộc: {field}",
-                "suggestion": f"Thêm trường '{field}' vào metadata",
-            })
+            errors.append(
+                {
+                    "section": "metadata",
+                    "issue": f"Thiếu trường bắt buộc: {field}",
+                    "suggestion": f"Thêm trường '{field}' vào metadata",
+                }
+            )
 
     return errors
 
@@ -47,18 +49,22 @@ def check_objectives(plan: dict) -> list[dict]:
     competencies = metadata.get("competencies", [])
 
     if len(objectives) < 2:
-        errors.append({
-            "section": "objectives",
-            "issue": f"Chỉ có {len(objectives)} mục tiêu, cần ít nhất 2 năng lực chuyên môn",
-            "suggestion": "Thêm mục tiêu về năng lực chuyên môn cụ thể",
-        })
+        errors.append(
+            {
+                "section": "objectives",
+                "issue": f"Chỉ có {len(objectives)} mục tiêu, cần ít nhất 2 năng lực chuyên môn",
+                "suggestion": "Thêm mục tiêu về năng lực chuyên môn cụ thể",
+            }
+        )
 
     if len(competencies) < 1:
-        errors.append({
-            "section": "competencies",
-            "issue": "Thiếu phẩm chất/năng lực cốt lõi",
-            "suggestion": "Thêm phẩm chất như: Trung thực, Trách nhiệm, hoặc năng lực tư duy",
-        })
+        errors.append(
+            {
+                "section": "competencies",
+                "issue": "Thiếu phẩm chất/năng lực cốt lõi",
+                "suggestion": "Thêm phẩm chất như: Trung thực, Trách nhiệm, hoặc năng lực tư duy",
+            }
+        )
 
     return errors
 
@@ -70,11 +76,13 @@ def check_materials(plan: dict) -> list[dict]:
     materials = metadata.get("materials", [])
 
     if not materials:
-        errors.append({
-            "section": "materials",
-            "issue": "Mục Thiết bị và học liệu trống",
-            "suggestion": "Liệt kê thiết bị dạy học và học liệu cần dùng",
-        })
+        errors.append(
+            {
+                "section": "materials",
+                "issue": "Mục Thiết bị và học liệu trống",
+                "suggestion": "Liệt kê thiết bị dạy học và học liệu cần dùng",
+            }
+        )
 
     return errors
 
@@ -86,23 +94,29 @@ def check_sections(plan: dict) -> list[dict]:
     sections = plan.get("sections", {})
     teaching_model = metadata.get("teaching_model", "5E")
 
-    required = REQUIRED_5E_SECTIONS if teaching_model == "5E" else REQUIRED_3PHASE_SECTIONS
+    required = (
+        REQUIRED_5E_SECTIONS if teaching_model == "5E" else REQUIRED_3PHASE_SECTIONS
+    )
 
     for section_key in required:
         if section_key not in sections:
-            errors.append({
-                "section": section_key,
-                "issue": f"Thiếu hoạt động '{section_key}' theo mô hình {teaching_model}",
-                "suggestion": f"Thêm section '{section_key}' với đầy đủ nội dung",
-            })
+            errors.append(
+                {
+                    "section": section_key,
+                    "issue": f"Thiếu hoạt động '{section_key}' theo mô hình {teaching_model}",
+                    "suggestion": f"Thêm section '{section_key}' với đầy đủ nội dung",
+                }
+            )
         else:
             section = sections[section_key]
             if not section.get("content"):
-                errors.append({
-                    "section": section_key,
-                    "issue": f"Hoạt động '{section_key}' chưa có nội dung",
-                    "suggestion": "Mô tả chi tiết hoạt động bao gồm: Mục tiêu – Nội dung – Sản phẩm – Tổ chức thực hiện",
-                })
+                errors.append(
+                    {
+                        "section": section_key,
+                        "issue": f"Hoạt động '{section_key}' chưa có nội dung",
+                        "suggestion": "Mô tả chi tiết hoạt động bao gồm: Mục tiêu – Nội dung – Sản phẩm – Tổ chức thực hiện",
+                    }
+                )
 
     return errors
 
@@ -161,12 +175,13 @@ async def run_llm_quality_check(plan: dict) -> list[dict]:
 
 # ─── Combined Quality Check ───────────────────────────────────────
 
+
 async def run_quality_check(plan: dict) -> dict:
     """
     Run the full quality check pipeline:
     1. Rule-based compliance checks (fast, deterministic)
     2. LLM-based content quality check
-    
+
     Returns:
         QualityResult dict: { status: "PASSED"|"FAILED", errors: [...] }
     """

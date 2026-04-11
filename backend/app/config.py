@@ -15,6 +15,7 @@ class Settings:
     SUPABASE_URL: str = os.getenv("SUPABASE_URL", "")
     SUPABASE_SERVICE_ROLE_KEY: str = os.getenv("SUPABASE_SERVICE_ROLE_KEY", "")
     SUPABASE_ANON_KEY: str = os.getenv("SUPABASE_ANON_KEY", "")
+    USE_MOCK_DB: bool = os.getenv("USE_MOCK_DB", "true").lower() == "true"
 
     # OpenAI
     OPENAI_API_KEY: str = os.getenv("OPENAI_API_KEY", "")
@@ -30,8 +31,12 @@ class Settings:
     # Pipeline Configuration
     MAX_ITERATIONS: int = int(os.getenv("MAX_ITERATIONS", "1"))
     MAX_RETRIES: int = int(os.getenv("MAX_RETRIES", "2"))
-    GENERATION_TIMEOUT_SECONDS: int = int(os.getenv("GENERATION_TIMEOUT_SECONDS", "180"))
-    RAG_CONFIDENCE_THRESHOLD: float = float(os.getenv("RAG_CONFIDENCE_THRESHOLD", "0.6"))
+    GENERATION_TIMEOUT_SECONDS: int = int(
+        os.getenv("GENERATION_TIMEOUT_SECONDS", "180")
+    )
+    RAG_CONFIDENCE_THRESHOLD: float = float(
+        os.getenv("RAG_CONFIDENCE_THRESHOLD", "0.6")
+    )
 
     # Server
     CORS_ORIGINS: list[str] = os.getenv(

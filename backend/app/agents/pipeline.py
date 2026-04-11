@@ -36,6 +36,7 @@ logger = logging.getLogger(__name__)
 
 # ─── Pipeline State ────────────────────────────────────────────────
 
+
 class PipelineState(TypedDict):
     task_id: str
     user_id: str
@@ -78,6 +79,7 @@ def update_task_state(task_id: str, updates: dict):
 
 # ─── Pipeline Execution ───────────────────────────────────────────
 
+
 async def run_pipeline(
     task_id: str,
     user_id: str,
@@ -86,7 +88,7 @@ async def run_pipeline(
 ):
     """
     Run the full lesson plan generation pipeline.
-    
+
     This function is called as a background task.
     If clarification_answers are provided, it resumes from the RAG step.
     """
@@ -132,9 +134,12 @@ async def run_pipeline(
                     "Yêu cầu không liên quan đến soạn giáo án.",
                 )
                 state["progress_step"] = "out_of_scope"
-                update_lesson_plan_by_task_id(task_id, {
-                    "status": "failed",
-                })
+                update_lesson_plan_by_task_id(
+                    task_id,
+                    {
+                        "status": "failed",
+                    },
+                )
                 task_store[task_id] = state
                 return
 
@@ -154,7 +159,9 @@ async def run_pipeline(
 
             state["rag_context"] = rag_result["rag_context"]
             state["low_confidence"] = rag_result["low_confidence"]
-            state["clarification_questions"] = rag_result.get("clarification_questions", [])
+            state["clarification_questions"] = rag_result.get(
+                "clarification_questions", []
+            )
             state["progress_step"] = "rag_done"
             task_store[task_id] = state
 
@@ -320,6 +327,9 @@ async def run_pipeline(
         state["progress_step"] = "error"
         task_store[task_id] = state
 
-        update_lesson_plan_by_task_id(task_id, {
-            "status": "failed",
-        })
+        update_lesson_plan_by_task_id(
+            task_id,
+            {
+                "status": "failed",
+            },
+        )

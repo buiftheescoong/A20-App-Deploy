@@ -3,6 +3,7 @@
 Submit .ai-log/session.jsonl to grading server.
 Called by git pre-push hook or manually.
 """
+
 import json
 import os
 import sys
@@ -12,6 +13,7 @@ from pathlib import Path
 
 try:
     from dotenv import load_dotenv
+
     load_dotenv()
 except ImportError:
     pass
@@ -57,7 +59,10 @@ def main():
 
     try:
         with urllib.request.urlopen(req, timeout=10) as resp:
-            print(f"[ai-log] Submitted {len(entries)} entries → {resp.status}", file=sys.stderr)
+            print(
+                f"[ai-log] Submitted {len(entries)} entries → {resp.status}",
+                file=sys.stderr,
+            )
     except urllib.error.URLError as e:
         print(f"[ai-log] Submit failed: {e} — logs kept locally.", file=sys.stderr)
         sys.exit(0)  # Don't block push on server error

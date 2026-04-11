@@ -65,6 +65,7 @@ async def get_generation_status(task_id: str):
     if not state:
         # Check DB as fallback
         from app.database import get_lesson_plan_by_task_id
+
         plan = get_lesson_plan_by_task_id(task_id)
         if plan:
             return StatusResponse(
@@ -81,7 +82,8 @@ async def get_generation_status(task_id: str):
         status=state.get("status", "pending"),
         progress_step=state.get("progress_step"),
         lesson_plan_id=None,  # Will be set after DB query if needed
-        clarification_needed=state.get("low_confidence", False) and state.get("status") == "clarifying",
+        clarification_needed=state.get("low_confidence", False)
+        and state.get("status") == "clarifying",
         is_blank_template=state.get("is_blank_template", False),
         error=state.get("error"),
     )

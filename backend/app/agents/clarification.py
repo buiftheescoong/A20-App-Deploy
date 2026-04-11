@@ -27,12 +27,12 @@ async def start_clarification(
     """
     Initiate a clarification session.
     Pipeline pauses here until teacher answers.
-    
+
     Args:
         task_id: The current pipeline task ID
         user_id: The teacher's user ID
         questions: List of clarification questions
-        
+
     Returns:
         The created clarification session record
     """
@@ -44,7 +44,9 @@ async def start_clarification(
 
     # Create clarification session in DB
     session = create_clarification_session(task_id, user_id, questions)
-    logger.info(f"Clarification session created for task {task_id} with {len(questions)} questions")
+    logger.info(
+        f"Clarification session created for task {task_id} with {len(questions)} questions"
+    )
 
     return session
 
@@ -52,7 +54,7 @@ async def start_clarification(
 async def get_clarification_status(task_id: str) -> dict:
     """
     Check clarification status for a task.
-    
+
     Returns:
         Clarification session dict or None
     """
@@ -63,11 +65,11 @@ async def submit_clarification_answers(task_id: str, answers: list[dict]) -> dic
     """
     Submit teacher's answers to clarification questions.
     This will resume the pipeline.
-    
+
     Args:
         task_id: The current pipeline task ID
         answers: List of {question, answer} dicts
-        
+
     Returns:
         Updated clarification session
     """
