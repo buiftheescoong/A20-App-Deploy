@@ -15,7 +15,7 @@ from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 
 from app.config import settings
-from app.api import generate, clarification, check, edit, lesson_plans
+from app.api import generate, clarification, check, edit, lesson_plans, kb
 
 # ─── Logging ──────────────────────────────────────────────────────
 
@@ -101,6 +101,7 @@ app.include_router(clarification.router, tags=["Clarification"])
 app.include_router(check.router, tags=["Quality Check"])
 app.include_router(edit.router, tags=["Edit"])
 app.include_router(lesson_plans.router, tags=["Lesson Plans"])
+app.include_router(kb.router, tags=["Knowledge Base"])
 
 
 # ─── Health Check ─────────────────────────────────────────────────
