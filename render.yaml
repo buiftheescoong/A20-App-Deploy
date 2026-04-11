@@ -1,0 +1,39 @@
+services:
+  # ── Backend ──
+  - type: web
+    name: a20-backend-api
+    env: python
+    rootDir: backend
+    plan: free
+    buildCommand: "pip install -r requirements.txt"
+    startCommand: "uvicorn app.main:app --host 0.0.0.0 --port $PORT"
+    envVars:
+      - key: SUPABASE_URL
+        sync: false
+      - key: SUPABASE_SERVICE_ROLE_KEY
+        sync: false
+      - key: SUPABASE_ANON_KEY
+        sync: false
+      - key: OPENAI_API_KEY
+        sync: false
+      - key: USE_MOCK_DB
+        value: "false"
+
+  # ── Frontend ──
+  - type: web
+    name: a20-frontend-ui
+    env: node
+    rootDir: frontend
+    plan: free
+    buildCommand: "npm install && npm run build"
+    startCommand: "npm run start"
+    envVars:
+      - key: NEXT_PUBLIC_SUPABASE_URL
+        sync: false
+      - key: NEXT_PUBLIC_SUPABASE_ANON_KEY
+        sync: false
+      - key: NEXT_PUBLIC_API_BASE_URL
+        fromService:
+          type: web
+          name: a20-backend-api
+          envVarKey: RENDER_EXTERNAL_URL
