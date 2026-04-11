@@ -34,12 +34,16 @@ class MockTable:
 
     def eq(self, column: str, value: Any):
         if hasattr(self, "_current_query"):
-            self._current_query = [r for r in self._current_query if r.get(column) == value]
+            self._current_query = [
+                r for r in self._current_query if r.get(column) == value
+            ]
         return self
 
     def single(self):
         if hasattr(self, "_current_query"):
-            self._single_record = self._current_query[0] if self._current_query else None
+            self._single_record = (
+                self._current_query[0] if self._current_query else None
+            )
         return self
 
     def order(self, column: str, desc: bool = False):
@@ -90,7 +94,6 @@ class MockTable:
 
         # Fallback an toàn (trả về list rỗng nếu không có context)
         return Response([])
-
 
     def _save(self):
         with open(MOCK_DB_PATH, "w", encoding="utf-8") as f:

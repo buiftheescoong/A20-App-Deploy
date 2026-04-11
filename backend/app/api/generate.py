@@ -80,7 +80,8 @@ async def get_generation_status(task_id: str):
         status=state.get("status", "pending"),
         progress_step=state.get("progress_step"),
         lesson_plan_id=lesson_plan_id,
-        clarification_needed=state.get("low_confidence", False) and state.get("status") == "clarifying",
+        clarification_needed=state.get("low_confidence", False)
+        and state.get("status") == "clarifying",
         is_blank_template=state.get("is_blank_template", False),
         error=state.get("error"),
     )

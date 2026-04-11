@@ -6,7 +6,7 @@ from pathlib import Path
 def run_cmd(cmd, cwd=None):
     try:
         result = subprocess.run(
-            cmd, shell=True, cwd=cwd, capture_output=True, text=True
+            cmd, shell=True, cwd=cwd, capture_output=True, text=True, encoding="utf-8"
         )
         return result.returncode == 0, result.stdout, result.stderr
     except Exception as e:

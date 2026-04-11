@@ -1,7 +1,6 @@
 from pathlib import Path
 
 
-
 def check_harness():
     print("Harness Check: Verifying system v2.0...")
 

@@ -14,7 +14,7 @@ def run_tests():
     try:
         # Chạy pytest
         result = subprocess.run(
-            [sys.executable, "-m", "pytest"], capture_output=True, text=True
+            [sys.executable, "-m", "pytest"], capture_output=True, text=True, encoding="utf-8"
         )
 
         if result.returncode == 0:

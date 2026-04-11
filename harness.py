@@ -15,13 +15,14 @@ def get_python_exe():
     paths = [
         ROOT_DIR / "venv" / "Scripts" / "python.exe",  # Windows
         ROOT_DIR / ".venv" / "Scripts" / "python.exe",
-        ROOT_DIR / "venv" / "bin" / "python",          # Linux/Mac
+        ROOT_DIR / "venv" / "bin" / "python",  # Linux/Mac
         ROOT_DIR / ".venv" / "bin" / "python",
     ]
     for p in paths:
         if p.exists():
             return str(p)
     return sys.executable
+
 
 def run_cmd(cmd, cwd=None):
     # Thay thế lệnh 'python' hoặc sys.executable bằng venv python nếu cần
@@ -32,14 +33,13 @@ def run_cmd(cmd, cwd=None):
         cmd = cmd.replace(f'"{sys.executable}"', f'"{python_exe}"', 1)
     elif cmd.startswith(sys.executable):
         cmd = cmd.replace(sys.executable, f'"{python_exe}"', 1)
-        
+
     print(f"Executing: {cmd} in {cwd or ROOT_DIR}")
     try:
         subprocess.run(cmd, shell=True, cwd=cwd, check=True)
     except subprocess.CalledProcessError as e:
         print(f"Error: Command failed with exit code {e.returncode}")
         sys.exit(e.returncode)
-
 
 
 def setup():

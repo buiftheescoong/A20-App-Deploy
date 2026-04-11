@@ -128,8 +128,12 @@ async def run_pipeline(
         state["normalized_input"] = previous_state.get("normalized_input")
         state["rag_context"] = previous_state.get("rag_context", [])
         state["low_confidence"] = previous_state.get("low_confidence", False)
-        state["clarification_questions"] = previous_state.get("clarification_questions", [])
-        state["current_model"] = previous_state.get("current_model", settings.PRIMARY_MODEL)
+        state["clarification_questions"] = previous_state.get(
+            "clarification_questions", []
+        )
+        state["current_model"] = previous_state.get(
+            "current_model", settings.PRIMARY_MODEL
+        )
         state["fallback_model"] = previous_state.get("fallback_model")
         state["retry_count"] = previous_state.get("retry_count", 0)
         state["progress_step"] = previous_state.get("progress_step", "resuming")

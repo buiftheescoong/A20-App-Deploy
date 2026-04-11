@@ -103,14 +103,16 @@ def check_duration_total(plan: dict) -> list[dict]:
             continue
 
     if expected_duration is not None and actual_duration != expected_duration:
-        errors.append({
-            "section": "metadata",
-            "issue": (
-                f"Tổng thời gian hoạt động là {actual_duration} phút, "
-                f"không khớp với duration_minutes = {expected_duration}"
-            ),
-            "suggestion": "Điều chỉnh thời lượng các hoạt động để khớp với thời lượng tiết học",
-        })
+        errors.append(
+            {
+                "section": "metadata",
+                "issue": (
+                    f"Tổng thời gian hoạt động là {actual_duration} phút, "
+                    f"không khớp với duration_minutes = {expected_duration}"
+                ),
+                "suggestion": "Điều chỉnh thời lượng các hoạt động để khớp với thời lượng tiết học",
+            }
+        )
 
     return errors
 
@@ -156,7 +158,9 @@ def check_activity_columns(plan: dict) -> list[dict]:
     sections = plan.get("sections", {})
     teaching_model = metadata.get("teaching_model", "5E")
 
-    required = REQUIRED_5E_SECTIONS if teaching_model == "5E" else REQUIRED_3PHASE_SECTIONS
+    required = (
+        REQUIRED_5E_SECTIONS if teaching_model == "5E" else REQUIRED_3PHASE_SECTIONS
+    )
     required_terms = ["mục tiêu", "nội dung", "sản phẩm", "tổ chức thực hiện"]
 
     for section_key in required:
@@ -165,14 +169,16 @@ def check_activity_columns(plan: dict) -> list[dict]:
 
         missing_terms = [term for term in required_terms if term not in content]
         if missing_terms:
-            errors.append({
-                "section": section_key,
-                "issue": (
-                    f"Hoạt động '{section_key}' chưa thể hiện đủ 4 cột, thiếu: "
-                    + ", ".join(missing_terms)
-                ),
-                "suggestion": "Mô tả rõ từng hoạt động theo 4 cột: Mục tiêu – Nội dung – Sản phẩm – Tổ chức thực hiện",
-            })
+            errors.append(
+                {
+                    "section": section_key,
+                    "issue": (
+                        f"Hoạt động '{section_key}' chưa thể hiện đủ 4 cột, thiếu: "
+                        + ", ".join(missing_terms)
+                    ),
+                    "suggestion": "Mô tả rõ từng hoạt động theo 4 cột: Mục tiêu – Nội dung – Sản phẩm – Tổ chức thực hiện",
+                }
+            )
 
     return errors
 

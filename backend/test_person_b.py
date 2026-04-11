@@ -8,8 +8,11 @@ sys.path.insert(0, os.path.dirname(__file__))
 
 # Tạm thời bypass kiểm tra key Supabase thực tế khi test cục bộ bằng cách patch
 import getpass
+
 os.environ["SUPABASE_URL"] = "https://mock-supabase-url.supabase.co"
-os.environ["SUPABASE_SERVICE_ROLE_KEY"] = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSJ9.xxxxxxxxxxxxxxxxx"
+os.environ["SUPABASE_SERVICE_ROLE_KEY"] = (
+    "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSJ9.xxxxxxxxxxxxxxxxx"
+)
 os.environ["OPENAI_API_KEY"] = "sk-mock-openai-key"
 
 from app.main import app
@@ -36,38 +39,42 @@ MOCK_LESSON_PLAN = {
             "duration_minutes": 45,
             "objectives": ["Mục tiêu 1"],
             "competencies": [],
-            "materials": []
+            "materials": [],
         },
         "sections": {
             "engage": {
                 "title": "Khởi động",
                 "content": "Nội dung cũ của Khởi động",
-                "duration": 5
+                "duration": 5,
             }
         },
         "rag_sources": [],
         "compliance": {"status": "FAILED", "errors": []},
-        "clarification_needed": False
+        "clarification_needed": False,
     },
     "status": "completed",
     "docx_url": None,
-    "is_blank_template": False
+    "is_blank_template": False,
 }
 
 
 def mock_get_lesson_plans_by_user(user_id, limit, offset):
     return [MOCK_LESSON_PLAN]
 
+
 def mock_get_lesson_plan(plan_id):
     if plan_id == MOCK_LESSON_PLAN["id"]:
         return MOCK_LESSON_PLAN
     return None
 
+
 def mock_delete_lesson_plan(plan_id):
     return True
 
+
 def mock_update_lesson_plan(plan_id, updates):
     return True
+
 
 import app.api.lesson_plans as custom_api_lp
 import app.api.edit as custom_api_edit
@@ -80,6 +87,7 @@ custom_api_edit.get_lesson_plan = mock_get_lesson_plan
 custom_api_edit.update_lesson_plan = mock_update_lesson_plan
 
 client = TestClient(app)
+
 
 def run_tests():
     print("=" * 60)
@@ -122,6 +130,7 @@ def run_tests():
     print("🎉 KẾT LUẬN: TẤT CẢ CÁC ENPOINT CRUD CỦA PERSON B ĐỀU HOẠT ĐỘNG ỔN ĐỊNH!")
     print("   (Endpoint /api/edit và export được skip do đòi hỏi gọi OpenAI API thực)")
     print("=" * 60)
+
 
 if __name__ == "__main__":
     run_tests()
