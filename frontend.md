@@ -49,14 +49,14 @@ graph TD
 - [ ] **Task 1.3: Layout & Navigation**: Xây dựng Header (User Profile) và Sidebar điều hướng.
 
 ### Phase 2: Core User Flow (Luồng chính)
-- [ ] **Task 2.1: DASHBOARD - Quản lý giáo án**: Hiển thị danh sách các bản ghi từ Supabase. Trạng thái Badge (Đã xong, Đang tạo, Lỗi).
+- [x] **Task 2.1: DASHBOARD - Quản lý giáo án**: Hiển thị danh sách các bản ghi từ Supabase. Trạng thái Badge (Đã xong, Đang tạo, Lỗi).
 - [ ] **Task 2.2: GENERATE FORM - "Trái tim" ứng dụng**: Xây dựng form nhập liệu đa bước. Validate kỹ dữ liệu đầu vào.
-- [ ] **Task 2.3: PROGRESS TRACKER - Trải nghiệm AI**: Xây dựng UI Stepper hiển thị quy trình của Agent (Intake -> RAG -> Generating -> Quality Check).
+- [x] **Task 2.3: PROGRESS TRACKER - Trải nghiệm AI**: Xây dựng UI Stepper hiển thị quy trình của Agent (Intake -> RAG -> Generating -> Quality Check).
     - *Senior Tip*: Tuyệt đối không để màn hình đứng yên. Phải có hiệu ứng loading/progress mượt mà.
 
 ### Phase 3: AI Interaction & Results (Tương tác AI)
-- [ ] **Task 3.1: CLARIFICATION INTERFACE**: Xây dựng màn hình hỏi-đáp khi AI cần thêm thông tin. Đây là điểm chạm quan trọng để xây dựng niềm tin (Trust).
-- [ ] **Task 3.2: LESSON PLAN RENDERER**: Render JSON trả về thành một bản giáo án HTML đẹp, chuẩn format.
+- [x] **Task 3.1: CLARIFICATION INTERFACE**: Xây dựng màn hình hỏi-đáp khi AI cần thêm thông tin. Đây là điểm chạm quan trọng để xây dựng niềm tin (Trust).
+- [x] **Task 3.2: LESSON PLAN RENDERER**: Render JSON trả về thành một bản giáo án HTML đẹp, chuẩn format (Tích hợp vào Route `/plans/[id]`).
 - [ ] **Task 3.3: COMPLIANCE REPORT**: Hiển thị danh sách các mục đã đạt (✅) và chưa đạt (❌) kèm gợi ý của AI.
 
 ---

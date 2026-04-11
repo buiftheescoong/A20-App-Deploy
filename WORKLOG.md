@@ -139,3 +139,17 @@ Ghi lại các quyết định kỹ thuật, phân công, và brainstorming củ
 **Code thay đổi:** `src/agent.ts` lines 45-67
 
 **Học được:** Luôn thiết kế stop condition trước khi implement retry logic.
+
+---
+
+### [ADR-3] Giữ state khi resume clarification + siết quality check — 11/04/2026
+
+**Bối cảnh:** Luồng clarification có thể resume sau khi giáo viên gửi câu trả lời. Nếu rebuild state từ đầu thì mất RAG context và metadata đã tích lũy trước đó. Quality checker cũng cần bắt được các lỗi format quan trọng theo spec.
+
+**Các lựa chọn đã xem xét:**
+- Recompute toàn bộ state từ đầu: đơn giản nhưng làm mất context cũ và dễ lệch trạng thái.
+- Hydrate lại từ task_store trước khi resume: giữ nguyên RAG context, questions, retry info và model đã dùng.
+
+**Quyết định:** Chọn hydrate state từ task_store khi resume clarification, đồng thời để status API đọc thêm lesson_plan_id từ DB. Quality checker được tăng rule-based checks cho tổng thời lượng và 4 cột hoạt động.
+
+**Hệ quả:** Resume flow ổn định hơn, frontend có thể map task sang lesson plan rõ ràng hơn, và các plan sai cấu trúc bị chặn sớm trước khi export.

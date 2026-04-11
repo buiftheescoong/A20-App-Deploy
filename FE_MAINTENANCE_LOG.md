@@ -16,9 +16,24 @@ Tài liệu này ghi lại các thay đổi quan trọng, quyết định kiến
     - `lucide-react`: Bộ icon hiện đại.
     - `clsx` & `tailwind-merge`: Quản lý Class name thông minh.
 
-### 🏗️ Quyết định Kiến trúc
-- **Môi trường ảo (venv)**: Backend và các công cụ hỗ trợ (Harness) chạy hoàn toàn trong `venv` để tránh gây bẩn máy Global.
-- **Harness CLI**: Luôn sử dụng `python harness.py [lệnh]` để thao tác với dự án.
+---
+
+## 📅 [2026-04-11] - Tích hợp & Sửa lỗi Real Mode
+
+### ✅ Đã thực hiện
+1.  **Chuyển đổi Real Mode**:
+    - Ngắt chế độ `Mock Database` (`USE_MOCK_DB=false`) và `Mock Frontend`.
+    - Cấu hình kết nối Supabase Cloud cho toàn bộ dự án.
+2.  **Sửa lỗi Critical**:
+    - **Lỗi 404 Route**: Bổ sung trang chi tiết giáo án tại `/plans/[id]`.
+    - **Lỗi Storage 404**: Cấu hình các Bucket `templates` và `documents` sang chế độ **Public** để cho phép tải file.
+    - **Lỗi Mock DB logic**: Sửa lỗi `KeyError: 0` khi tạo giáo án mới trong chế độ Offline.
+3.  **Tối ưu hóa**:
+    - Sử dụng `Path(__file__)` trong Backend để đảm bảo file `mock_db.json` luôn được tìm thấy chính xác.
+
+### ⚠️ Lưu ý cho Teamate
+- **Supabase Schema**: Cần chạy file `backend/scripts/schema.sql` trong SQL Editor của Supabase nếu khởi tạo dự án mới.
+- **Storage**: Đảm bảo bucket `documents` luôn ở trạng thái **Public** thì tính năng Tải DOCX mới hoạt động.
 
 ---
 

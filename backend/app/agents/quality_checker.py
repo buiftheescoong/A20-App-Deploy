@@ -87,6 +87,34 @@ def check_materials(plan: dict) -> list[dict]:
     return errors
 
 
+def check_duration_total(plan: dict) -> list[dict]:
+    """Check that section durations add up to the declared lesson duration."""
+    errors = []
+    metadata = plan.get("metadata", {})
+    sections = plan.get("sections", {})
+
+    expected_duration = metadata.get("duration_minutes")
+    actual_duration = 0
+
+    for section in sections.values():
+        try:
+            actual_duration += int(section.get("duration", 0))
+        except (TypeError, ValueError):
+            continue
+
+    if expected_duration is not None and actual_duration != expected_duration:
+        errors.append({
+            "section": "metadata",
+            "issue": (
+                f"Tổng thời gian hoạt động là {actual_duration} phút, "
+                f"không khớp với duration_minutes = {expected_duration}"
+            ),
+            "suggestion": "Điều chỉnh thời lượng các hoạt động để khớp với thời lượng tiết học",
+        })
+
+    return errors
+
+
 def check_sections(plan: dict) -> list[dict]:
     """Check that all required sections exist based on teaching model."""
     errors = []
@@ -121,13 +149,43 @@ def check_sections(plan: dict) -> list[dict]:
     return errors
 
 
+def check_activity_columns(plan: dict) -> list[dict]:
+    """Check that each activity mentions the 4 required planning columns."""
+    errors = []
+    metadata = plan.get("metadata", {})
+    sections = plan.get("sections", {})
+    teaching_model = metadata.get("teaching_model", "5E")
+
+    required = REQUIRED_5E_SECTIONS if teaching_model == "5E" else REQUIRED_3PHASE_SECTIONS
+    required_terms = ["mục tiêu", "nội dung", "sản phẩm", "tổ chức thực hiện"]
+
+    for section_key in required:
+        section = sections.get(section_key, {})
+        content = str(section.get("content", "")).lower()
+
+        missing_terms = [term for term in required_terms if term not in content]
+        if missing_terms:
+            errors.append({
+                "section": section_key,
+                "issue": (
+                    f"Hoạt động '{section_key}' chưa thể hiện đủ 4 cột, thiếu: "
+                    + ", ".join(missing_terms)
+                ),
+                "suggestion": "Mô tả rõ từng hoạt động theo 4 cột: Mục tiêu – Nội dung – Sản phẩm – Tổ chức thực hiện",
+            })
+
+    return errors
+
+
 def run_rule_based_check(plan: dict) -> list[dict]:
     """Run all rule-based compliance checks."""
     errors = []
     errors.extend(check_required_fields(plan))
     errors.extend(check_objectives(plan))
     errors.extend(check_materials(plan))
+    errors.extend(check_duration_total(plan))
     errors.extend(check_sections(plan))
+    errors.extend(check_activity_columns(plan))
     return errors
 
 

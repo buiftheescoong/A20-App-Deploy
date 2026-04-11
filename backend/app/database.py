@@ -55,10 +55,12 @@ def get_lesson_plan_by_task_id(task_id: str) -> Optional[dict]:
         supabase.table("lesson_plans")
         .select("*")
         .eq("task_id", task_id)
-        .single()
+        .limit(1)
         .execute()
     )
-    return result.data
+    if not result.data:
+        return None
+    return result.data[0]
 
 
 def get_lesson_plans_by_user(
@@ -137,10 +139,11 @@ def get_clarification_session(task_id: str) -> Optional[dict]:
         .eq("task_id", task_id)
         .order("created_at", desc=True)
         .limit(1)
-        .single()
         .execute()
     )
-    return result.data
+    if not result.data:
+        return None
+    return result.data[0]
 
 
 def update_clarification_session(task_id: str, answers: list[dict]) -> dict:
