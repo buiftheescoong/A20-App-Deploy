@@ -8,7 +8,7 @@ import logging
 from fastapi import APIRouter, BackgroundTasks, Request, HTTPException
 
 from app.schemas.lesson_plan import GenerateRequest, StatusResponse
-from app.database import create_lesson_plan
+from app.database import create_lesson_plan, get_lesson_plan_by_task_id
 from app.agents.pipeline import run_pipeline, get_task_state
 
 logger = logging.getLogger(__name__)
@@ -61,16 +61,15 @@ async def get_generation_status(task_id: str):
     Frontend calls this every 3 seconds.
     """
     state = get_task_state(task_id)
+    plan = get_lesson_plan_by_task_id(task_id)
+    lesson_plan_id = plan.get("id") if plan else None
 
     if not state:
-        # Check DB as fallback
-        from app.database import get_lesson_plan_by_task_id
-        plan = get_lesson_plan_by_task_id(task_id)
         if plan:
             return StatusResponse(
                 task_id=task_id,
                 status=plan.get("status", "pending"),
-                lesson_plan_id=plan.get("id"),
+                lesson_plan_id=lesson_plan_id,
                 is_blank_template=plan.get("is_blank_template", False),
                 clarification_needed=plan.get("status") == "clarifying",
             )
@@ -80,7 +79,7 @@ async def get_generation_status(task_id: str):
         task_id=task_id,
         status=state.get("status", "pending"),
         progress_step=state.get("progress_step"),
-        lesson_plan_id=None,  # Will be set after DB query if needed
+        lesson_plan_id=lesson_plan_id,
         clarification_needed=state.get("low_confidence", False) and state.get("status") == "clarifying",
         is_blank_template=state.get("is_blank_template", False),
         error=state.get("error"),
