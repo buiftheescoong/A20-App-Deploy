@@ -1,12 +1,9 @@
-"use client";
+'use client';
 
-import { useEffect, useState } from "react";
-import { useParams, useRouter } from "next/navigation";
-import Link from "next/link";
-import {
-  getClarificationQuestions,
-  submitClarificationAnswers,
-} from "@/lib/api";
+import { useEffect, useState } from 'react';
+import { useParams, useRouter } from 'next/navigation';
+import Link from 'next/link';
+import { getClarificationQuestions, submitClarificationAnswers } from '@/lib/api';
 
 export default function ClarifyPage() {
   const params = useParams();
@@ -17,7 +14,7 @@ export default function ClarifyPage() {
   const [answers, setAnswers] = useState<string[]>([]);
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
-  const [error, setError] = useState("");
+  const [error, setError] = useState('');
 
   useEffect(() => {
     loadQuestions();
@@ -27,7 +24,7 @@ export default function ClarifyPage() {
     try {
       const result = await getClarificationQuestions(taskId);
       setQuestions(result.questions);
-      setAnswers(new Array(result.questions.length).fill(""));
+      setAnswers(new Array(result.questions.length).fill(''));
     } catch (err: any) {
       setError(err.message);
     } finally {
@@ -38,7 +35,7 @@ export default function ClarifyPage() {
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setSubmitting(true);
-    setError("");
+    setError('');
 
     try {
       const formattedAnswers = questions.map((q, i) => ({
@@ -63,9 +60,7 @@ export default function ClarifyPage() {
             <div className="w-9 h-9 rounded-lg bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center text-white font-bold text-sm">
               GA
             </div>
-            <span className="font-bold text-lg text-gray-800">
-              Giáo Án Thông Minh
-            </span>
+            <span className="font-bold text-lg text-gray-800">Giáo Án Thông Minh</span>
           </Link>
         </div>
       </header>
@@ -77,13 +72,10 @@ export default function ClarifyPage() {
             <div className="flex gap-3 items-start">
               <span className="text-2xl">💬</span>
               <div>
-                <h2 className="font-bold text-amber-800 text-lg mb-1">
-                  Cần bổ sung thông tin
-                </h2>
+                <h2 className="font-bold text-amber-800 text-lg mb-1">Cần bổ sung thông tin</h2>
                 <p className="text-amber-700 text-sm leading-relaxed">
-                  AI không tìm đủ tài liệu tham khảo cho bài học này. Vui lòng
-                  trả lời các câu hỏi bên dưới để AI có thể soạn giáo án chính
-                  xác hơn.
+                  AI không tìm đủ tài liệu tham khảo cho bài học này. Vui lòng trả lời các câu hỏi
+                  bên dưới để AI có thể soạn giáo án chính xác hơn.
                 </p>
               </div>
             </div>
@@ -137,10 +129,7 @@ export default function ClarifyPage() {
               >
                 {submitting ? (
                   <span className="flex items-center justify-center gap-2">
-                    <svg
-                      className="animate-spin h-5 w-5"
-                      viewBox="0 0 24 24"
-                    >
+                    <svg className="animate-spin h-5 w-5" viewBox="0 0 24 24">
                       <circle
                         className="opacity-25"
                         cx="12"
@@ -159,7 +148,7 @@ export default function ClarifyPage() {
                     Đang gửi...
                   </span>
                 ) : (
-                  "📤 Gửi và tiếp tục tạo giáo án"
+                  '📤 Gửi và tiếp tục tạo giáo án'
                 )}
               </button>
             </form>

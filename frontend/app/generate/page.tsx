@@ -1,44 +1,44 @@
-"use client";
+'use client';
 
-import { useState } from "react";
-import { useRouter } from "next/navigation";
-import Link from "next/link";
-import { generateLessonPlan } from "@/lib/api";
+import { useState } from 'react';
+import { useRouter } from 'next/navigation';
+import Link from 'next/link';
+import { generateLessonPlan } from '@/lib/api';
 
 const SUBJECTS = [
-  "Toán",
-  "Ngữ Văn",
-  "Vật lý",
-  "Hóa học",
-  "Sinh học",
-  "Lịch sử",
-  "Địa lý",
-  "Tiếng Anh",
-  "GDCD",
-  "Tin học",
-  "Công nghệ",
+  'Toán',
+  'Ngữ Văn',
+  'Vật lý',
+  'Hóa học',
+  'Sinh học',
+  'Lịch sử',
+  'Địa lý',
+  'Tiếng Anh',
+  'GDCD',
+  'Tin học',
+  'Công nghệ',
 ];
-const GRADES = ["6", "7", "8", "9", "10", "11", "12"];
+const GRADES = ['6', '7', '8', '9', '10', '11', '12'];
 
 export default function GeneratePage() {
   const router = useRouter();
-  const [subject, setSubject] = useState("");
-  const [grade, setGrade] = useState("");
-  const [topic, setTopic] = useState("");
-  const [objectives, setObjectives] = useState("");
-  const [teachingModel, setTeachingModel] = useState<"5E" | "3-phase">("5E");
+  const [subject, setSubject] = useState('');
+  const [grade, setGrade] = useState('');
+  const [topic, setTopic] = useState('');
+  const [objectives, setObjectives] = useState('');
+  const [teachingModel, setTeachingModel] = useState<'5E' | '3-phase'>('5E');
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState("");
+  const [error, setError] = useState('');
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!subject || !grade || !topic) {
-      setError("Vui lòng điền đầy đủ thông tin");
+      setError('Vui lòng điền đầy đủ thông tin');
       return;
     }
 
     setLoading(true);
-    setError("");
+    setError('');
 
     try {
       const result = await generateLessonPlan({
@@ -46,7 +46,7 @@ export default function GeneratePage() {
         grade,
         topic,
         objectives: objectives
-          .split("\n")
+          .split('\n')
           .map((o) => o.trim())
           .filter(Boolean),
         teaching_model: teachingModel,
@@ -54,7 +54,7 @@ export default function GeneratePage() {
 
       router.push(`/generate/${result.task_id}`);
     } catch (err: any) {
-      setError(err.message || "Đã xảy ra lỗi khi tạo giáo án");
+      setError(err.message || 'Đã xảy ra lỗi khi tạo giáo án');
       setLoading(false);
     }
   };
@@ -69,9 +69,7 @@ export default function GeneratePage() {
               <div className="w-9 h-9 rounded-lg bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center text-white font-bold text-sm">
                 GA
               </div>
-              <span className="font-bold text-lg text-gray-800">
-                Giáo Án Thông Minh
-              </span>
+              <span className="font-bold text-lg text-gray-800">Giáo Án Thông Minh</span>
             </Link>
           </div>
           <nav className="flex items-center gap-6">
@@ -81,10 +79,7 @@ export default function GeneratePage() {
             >
               Dashboard
             </Link>
-            <Link
-              href="/generate"
-              className="text-blue-600 font-semibold text-sm"
-            >
+            <Link href="/generate" className="text-blue-600 font-semibold text-sm">
               Tạo giáo án
             </Link>
           </nav>
@@ -93,9 +88,7 @@ export default function GeneratePage() {
 
       <main className="max-w-2xl mx-auto px-6 py-10">
         <div className="animate-slide-up">
-          <h1 className="text-3xl font-bold text-gray-800 mb-2">
-            ✨ Tạo giáo án mới
-          </h1>
+          <h1 className="text-3xl font-bold text-gray-800 mb-2">✨ Tạo giáo án mới</h1>
           <p className="text-gray-500 mb-8">
             Nhập thông tin bài học — AI sẽ soạn giáo án chuẩn GDPT 2018 cho bạn
           </p>
@@ -107,9 +100,7 @@ export default function GeneratePage() {
             {/* Subject & Grade */}
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <label className="block text-sm font-semibold text-gray-700 mb-2">
-                  Môn học *
-                </label>
+                <label className="block text-sm font-semibold text-gray-700 mb-2">Môn học *</label>
                 <select
                   value={subject}
                   onChange={(e) => setSubject(e.target.value)}
@@ -127,9 +118,7 @@ export default function GeneratePage() {
               </div>
 
               <div>
-                <label className="block text-sm font-semibold text-gray-700 mb-2">
-                  Lớp *
-                </label>
+                <label className="block text-sm font-semibold text-gray-700 mb-2">Lớp *</label>
                 <select
                   value={grade}
                   onChange={(e) => setGrade(e.target.value)}
@@ -189,17 +178,17 @@ export default function GeneratePage() {
               <div className="flex gap-4">
                 <label
                   className={`flex-1 p-4 rounded-xl border-2 cursor-pointer transition-all ${
-                    teachingModel === "5E"
-                      ? "border-blue-500 bg-blue-50"
-                      : "border-gray-200 bg-white hover:border-gray-300"
+                    teachingModel === '5E'
+                      ? 'border-blue-500 bg-blue-50'
+                      : 'border-gray-200 bg-white hover:border-gray-300'
                   }`}
                 >
                   <input
                     type="radio"
                     name="teaching_model"
                     value="5E"
-                    checked={teachingModel === "5E"}
-                    onChange={() => setTeachingModel("5E")}
+                    checked={teachingModel === '5E'}
+                    onChange={() => setTeachingModel('5E')}
                     className="sr-only"
                   />
                   <div className="font-bold text-gray-800 mb-1">5E Model</div>
@@ -210,17 +199,17 @@ export default function GeneratePage() {
 
                 <label
                   className={`flex-1 p-4 rounded-xl border-2 cursor-pointer transition-all ${
-                    teachingModel === "3-phase"
-                      ? "border-blue-500 bg-blue-50"
-                      : "border-gray-200 bg-white hover:border-gray-300"
+                    teachingModel === '3-phase'
+                      ? 'border-blue-500 bg-blue-50'
+                      : 'border-gray-200 bg-white hover:border-gray-300'
                   }`}
                 >
                   <input
                     type="radio"
                     name="teaching_model"
                     value="3-phase"
-                    checked={teachingModel === "3-phase"}
-                    onChange={() => setTeachingModel("3-phase")}
+                    checked={teachingModel === '3-phase'}
+                    onChange={() => setTeachingModel('3-phase')}
                     className="sr-only"
                   />
                   <div className="font-bold text-gray-800 mb-1">3 Giai đoạn</div>
@@ -266,7 +255,7 @@ export default function GeneratePage() {
                   Đang tạo giáo án...
                 </span>
               ) : (
-                "🚀 Tạo giáo án"
+                '🚀 Tạo giáo án'
               )}
             </button>
           </form>

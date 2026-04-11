@@ -1,13 +1,13 @@
-"use client";
+'use client';
 
-import { useEffect, useState, useRef } from "react";
-import { useParams, useRouter } from "next/navigation";
-import Link from "next/link";
-import { getStatus, getLessonPlan, type StatusResponse } from "@/lib/api";
-import LessonPlanPreview from "@/components/LessonPlanPreview";
-import BlankTemplateAlert from "@/components/BlankTemplateAlert";
-import ExportButton from "@/components/ExportButton";
-import ProgressTracker from "@/components/ProgressTracker";
+import { useEffect, useState, useRef } from 'react';
+import { useParams, useRouter } from 'next/navigation';
+import Link from 'next/link';
+import { getStatus, getLessonPlan, type StatusResponse } from '@/lib/api';
+import LessonPlanPreview from '@/components/LessonPlanPreview';
+import BlankTemplateAlert from '@/components/BlankTemplateAlert';
+import ExportButton from '@/components/ExportButton';
+import ProgressTracker from '@/components/ProgressTracker';
 
 export default function GenerateProgressPage() {
   const params = useParams();
@@ -16,7 +16,7 @@ export default function GenerateProgressPage() {
 
   const [status, setStatus] = useState<StatusResponse | null>(null);
   const [lessonPlan, setLessonPlan] = useState<any>(null);
-  const [error, setError] = useState("");
+  const [error, setError] = useState('');
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
 
   useEffect(() => {
@@ -33,17 +33,14 @@ export default function GenerateProgressPage() {
       setStatus(result);
 
       // Redirect to clarification page if needed
-      if (result.status === "clarifying") {
+      if (result.status === 'clarifying') {
         if (intervalRef.current) clearInterval(intervalRef.current);
         router.push(`/generate/${taskId}/clarify`);
         return;
       }
 
       // Stop polling when done
-      if (
-        result.status === "completed" ||
-        result.status === "failed"
-      ) {
+      if (result.status === 'completed' || result.status === 'failed') {
         if (intervalRef.current) clearInterval(intervalRef.current);
 
         // Load the full lesson plan
@@ -52,7 +49,7 @@ export default function GenerateProgressPage() {
             const plan = await getLessonPlan(result.lesson_plan_id);
             setLessonPlan(plan);
           } catch (e) {
-            console.error("Failed to load lesson plan:", e);
+            console.error('Failed to load lesson plan:', e);
           }
         }
       }
@@ -62,8 +59,7 @@ export default function GenerateProgressPage() {
     }
   }
 
-  const isComplete =
-    status?.status === "completed" || status?.status === "failed";
+  const isComplete = status?.status === 'completed' || status?.status === 'failed';
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -74,14 +70,9 @@ export default function GenerateProgressPage() {
             <div className="w-9 h-9 rounded-lg bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center text-white font-bold text-sm">
               GA
             </div>
-            <span className="font-bold text-lg text-gray-800">
-              Giáo Án Thông Minh
-            </span>
+            <span className="font-bold text-lg text-gray-800">Giáo Án Thông Minh</span>
           </Link>
-          <Link
-            href="/dashboard"
-            className="text-gray-500 hover:text-gray-700 text-sm font-medium"
-          >
+          <Link href="/dashboard" className="text-gray-500 hover:text-gray-700 text-sm font-medium">
             ← Quay về Dashboard
           </Link>
         </div>
@@ -91,8 +82,8 @@ export default function GenerateProgressPage() {
         {/* Progress Tracker */}
         <div className="mb-10">
           <ProgressTracker
-            currentStep={status?.progress_step || "started"}
-            status={status?.status || "pending"}
+            currentStep={status?.progress_step || 'started'}
+            status={status?.status || 'pending'}
           />
         </div>
 
@@ -104,12 +95,10 @@ export default function GenerateProgressPage() {
         )}
 
         {/* Out-of-scope */}
-        {status?.error && status.status === "failed" && !status.is_blank_template && (
+        {status?.error && status.status === 'failed' && !status.is_blank_template && (
           <div className="bg-white rounded-2xl p-8 shadow-sm border border-gray-100 text-center">
             <div className="text-5xl mb-4">🚫</div>
-            <h2 className="text-xl font-bold text-gray-800 mb-3">
-              Không thể xử lý yêu cầu
-            </h2>
+            <h2 className="text-xl font-bold text-gray-800 mb-3">Không thể xử lý yêu cầu</h2>
             <p className="text-gray-500 mb-6">{status.error}</p>
             <Link href="/generate" className="btn-primary">
               Thử lại
@@ -119,20 +108,14 @@ export default function GenerateProgressPage() {
 
         {/* Blank Template Alert */}
         {status?.is_blank_template && (
-          <BlankTemplateAlert
-            taskId={taskId}
-            onRetry={() => router.push("/generate")}
-          />
+          <BlankTemplateAlert taskId={taskId} onRetry={() => router.push('/generate')} />
         )}
 
         {/* Generating... */}
         {!isComplete && !error && (
           <div className="bg-white rounded-2xl p-10 shadow-sm border border-gray-100 text-center">
             <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-blue-100 mb-6">
-              <svg
-                className="animate-spin h-8 w-8 text-blue-600"
-                viewBox="0 0 24 24"
-              >
+              <svg className="animate-spin h-8 w-8 text-blue-600" viewBox="0 0 24 24">
                 <circle
                   className="opacity-25"
                   cx="12"
@@ -149,12 +132,8 @@ export default function GenerateProgressPage() {
                 />
               </svg>
             </div>
-            <h2 className="text-xl font-bold text-gray-800 mb-2">
-              AI đang soạn giáo án...
-            </h2>
-            <p className="text-gray-500">
-              Quá trình này thường mất 2-3 phút. Vui lòng đợi.
-            </p>
+            <h2 className="text-xl font-bold text-gray-800 mb-2">AI đang soạn giáo án...</h2>
+            <p className="text-gray-500">Quá trình này thường mất 2-3 phút. Vui lòng đợi.</p>
           </div>
         )}
 
@@ -162,9 +141,7 @@ export default function GenerateProgressPage() {
         {isComplete && lessonPlan && !status?.is_blank_template && (
           <div className="space-y-6">
             <div className="flex justify-between items-center">
-              <h2 className="text-2xl font-bold text-gray-800">
-                ✅ Giáo án hoàn thành!
-              </h2>
+              <h2 className="text-2xl font-bold text-gray-800">✅ Giáo án hoàn thành!</h2>
               <ExportButton planId={lessonPlan.id} />
             </div>
             <LessonPlanPreview plan={lessonPlan} />

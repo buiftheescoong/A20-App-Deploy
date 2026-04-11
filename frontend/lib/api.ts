@@ -3,20 +3,20 @@
  * Person C owns this file.
  */
 
-const API_BASE = process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:8000";
+const API_BASE = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:8000';
 
 /**
  * Helper to get auth token from Supabase session.
  */
 async function getAuthToken(): Promise<string> {
   try {
-    const { supabase } = await import("./supabase");
+    const { supabase } = await import('./supabase');
     const {
       data: { session },
     } = await supabase.auth.getSession();
-    return session?.access_token || "";
+    return session?.access_token || '';
   } catch {
-    return "";
+    return '';
   }
 }
 
@@ -26,7 +26,7 @@ async function getAuthToken(): Promise<string> {
 async function apiFetch(path: string, options: RequestInit = {}) {
   const token = await getAuthToken();
   const headers: Record<string, string> = {
-    "Content-Type": "application/json",
+    'Content-Type': 'application/json',
     ...(token ? { Authorization: `Bearer ${token}` } : {}),
     ...(options.headers as Record<string, string>),
   };
@@ -37,7 +37,7 @@ async function apiFetch(path: string, options: RequestInit = {}) {
   });
 
   if (!res.ok) {
-    const error = await res.json().catch(() => ({ detail: "Unknown error" }));
+    const error = await res.json().catch(() => ({ detail: 'Unknown error' }));
     throw new Error(error.detail || `API error: ${res.status}`);
   }
 
@@ -51,14 +51,14 @@ export interface GeneratePayload {
   grade: string;
   topic: string;
   objectives: string[];
-  teaching_model: "5E" | "3-phase";
+  teaching_model: '5E' | '3-phase';
 }
 
 export async function generateLessonPlan(
   data: GeneratePayload
 ): Promise<{ task_id: string; status: string }> {
-  return apiFetch("/api/generate", {
-    method: "POST",
+  return apiFetch('/api/generate', {
+    method: 'POST',
     body: JSON.stringify(data),
   });
 }
@@ -67,13 +67,7 @@ export async function generateLessonPlan(
 
 export interface StatusResponse {
   task_id: string;
-  status:
-    | "pending"
-    | "clarifying"
-    | "generating"
-    | "retrying"
-    | "completed"
-    | "failed";
+  status: 'pending' | 'clarifying' | 'generating' | 'retrying' | 'completed' | 'failed';
   progress_step?: string;
   lesson_plan_id?: string;
   clarification_needed: boolean;
@@ -92,9 +86,7 @@ export interface ClarificationResponse {
   questions: string[];
 }
 
-export async function getClarificationQuestions(
-  taskId: string
-): Promise<ClarificationResponse> {
+export async function getClarificationQuestions(taskId: string): Promise<ClarificationResponse> {
   return apiFetch(`/api/clarification/${taskId}`);
 }
 
@@ -103,7 +95,7 @@ export async function submitClarificationAnswers(
   answers: Array<{ question: string; answer: string }>
 ): Promise<{ task_id: string; status: string }> {
   return apiFetch(`/api/clarification/${taskId}`, {
-    method: "POST",
+    method: 'POST',
     body: JSON.stringify({ answers }),
   });
 }
@@ -115,10 +107,10 @@ export interface LessonPlanResponse {
   subject: string;
   grade: string;
   topic: string;
-  teaching_model: "5E" | "3-phase";
+  teaching_model: '5E' | '3-phase';
   objectives: string[];
   content_json: any;
-  compliance_status: "PASSED" | "FAILED" | "PENDING";
+  compliance_status: 'PASSED' | 'FAILED' | 'PENDING';
   docx_url?: string;
   is_blank_template: boolean;
   status: string;
@@ -129,7 +121,7 @@ export async function listLessonPlans(): Promise<{
   plans: LessonPlanResponse[];
   count: number;
 }> {
-  return apiFetch("/api/lesson-plans");
+  return apiFetch('/api/lesson-plans');
 }
 
 export async function getLessonPlan(id: string): Promise<LessonPlanResponse> {
@@ -137,7 +129,7 @@ export async function getLessonPlan(id: string): Promise<LessonPlanResponse> {
 }
 
 export async function deleteLessonPlan(id: string): Promise<void> {
-  return apiFetch(`/api/lesson-plans/${id}`, { method: "DELETE" });
+  return apiFetch(`/api/lesson-plans/${id}`, { method: 'DELETE' });
 }
 
 // ─── Quality Check ───────────────────────────────────────────────
@@ -148,8 +140,8 @@ export async function checkQuality(lessonPlanId: string): Promise<{
   error_details: any[];
   suggestions: string[];
 }> {
-  return apiFetch("/api/check", {
-    method: "POST",
+  return apiFetch('/api/check', {
+    method: 'POST',
     body: JSON.stringify({ lesson_plan_id: lessonPlanId }),
   });
 }
@@ -159,7 +151,7 @@ export async function checkQuality(lessonPlanId: string): Promise<{
 export async function exportDocx(
   planId: string
 ): Promise<{ download_url: string; is_blank_template: boolean }> {
-  return apiFetch(`/api/export/${planId}`, { method: "POST" });
+  return apiFetch(`/api/export/${planId}`, { method: 'POST' });
 }
 
 // ─── Edit ────────────────────────────────────────────────────────
@@ -169,8 +161,8 @@ export async function editSection(
   sectionId: string,
   editPrompt: string
 ): Promise<any> {
-  return apiFetch("/api/edit", {
-    method: "POST",
+  return apiFetch('/api/edit', {
+    method: 'POST',
     body: JSON.stringify({
       lesson_plan_id: lessonPlanId,
       section_id: sectionId,

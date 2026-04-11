@@ -1,7 +1,7 @@
-"use client";
+'use client';
 
-import { useState } from "react";
-import { exportDocx } from "@/lib/api";
+import { useState } from 'react';
+import { exportDocx } from '@/lib/api';
 
 interface ExportButtonProps {
   planId: string;
@@ -15,11 +15,11 @@ export default function ExportButton({ planId }: ExportButtonProps) {
     try {
       const result = await exportDocx(planId);
       if (result.download_url) {
-        window.open(result.download_url, "_blank");
+        window.open(result.download_url, '_blank');
       }
     } catch (err) {
-      console.error("Export failed:", err);
-      alert("Không thể xuất file. Vui lòng thử lại.");
+      console.error('Export failed:', err);
+      alert('Không thể xuất file. Vui lòng thử lại.');
     } finally {
       setLoading(false);
     }
@@ -53,7 +53,7 @@ export default function ExportButton({ planId }: ExportButtonProps) {
           Đang xuất...
         </span>
       ) : (
-        "📥 Tải DOCX"
+        '📥 Tải DOCX'
       )}
     </button>
   );

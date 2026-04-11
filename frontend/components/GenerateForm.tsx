@@ -1,40 +1,40 @@
-"use client";
+'use client';
 
-import { useState } from "react";
-import { generateLessonPlan, type GeneratePayload } from "@/lib/api";
+import { useState } from 'react';
+import { generateLessonPlan, type GeneratePayload } from '@/lib/api';
 
 interface GenerateFormProps {
   onSubmit: (taskId: string) => void;
 }
 
 const SUBJECTS = [
-  "Toán",
-  "Ngữ Văn",
-  "Vật lý",
-  "Hóa học",
-  "Sinh học",
-  "Lịch sử",
-  "Địa lý",
-  "Tiếng Anh",
-  "GDCD",
-  "Tin học",
-  "Công nghệ",
+  'Toán',
+  'Ngữ Văn',
+  'Vật lý',
+  'Hóa học',
+  'Sinh học',
+  'Lịch sử',
+  'Địa lý',
+  'Tiếng Anh',
+  'GDCD',
+  'Tin học',
+  'Công nghệ',
 ];
-const GRADES = ["6", "7", "8", "9", "10", "11", "12"];
+const GRADES = ['6', '7', '8', '9', '10', '11', '12'];
 
 export default function GenerateForm({ onSubmit }: GenerateFormProps) {
-  const [subject, setSubject] = useState("");
-  const [grade, setGrade] = useState("");
-  const [topic, setTopic] = useState("");
-  const [objectives, setObjectives] = useState("");
-  const [teachingModel, setTeachingModel] = useState<"5E" | "3-phase">("5E");
+  const [subject, setSubject] = useState('');
+  const [grade, setGrade] = useState('');
+  const [topic, setTopic] = useState('');
+  const [objectives, setObjectives] = useState('');
+  const [teachingModel, setTeachingModel] = useState<'5E' | '3-phase'>('5E');
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState("");
+  const [error, setError] = useState('');
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
-    setError("");
+    setError('');
 
     try {
       const payload: GeneratePayload = {
@@ -42,7 +42,7 @@ export default function GenerateForm({ onSubmit }: GenerateFormProps) {
         grade,
         topic,
         objectives: objectives
-          .split("\n")
+          .split('\n')
           .map((o) => o.trim())
           .filter(Boolean),
         teaching_model: teachingModel,
@@ -51,7 +51,7 @@ export default function GenerateForm({ onSubmit }: GenerateFormProps) {
       const result = await generateLessonPlan(payload);
       onSubmit(result.task_id);
     } catch (err: any) {
-      setError(err.message || "Đã xảy ra lỗi");
+      setError(err.message || 'Đã xảy ra lỗi');
     } finally {
       setLoading(false);
     }
@@ -61,9 +61,7 @@ export default function GenerateForm({ onSubmit }: GenerateFormProps) {
     <form onSubmit={handleSubmit} className="space-y-6">
       <div className="grid grid-cols-2 gap-4">
         <div>
-          <label className="block text-sm font-semibold text-gray-700 mb-2">
-            Môn học *
-          </label>
+          <label className="block text-sm font-semibold text-gray-700 mb-2">Môn học *</label>
           <select
             value={subject}
             onChange={(e) => setSubject(e.target.value)}
@@ -79,9 +77,7 @@ export default function GenerateForm({ onSubmit }: GenerateFormProps) {
           </select>
         </div>
         <div>
-          <label className="block text-sm font-semibold text-gray-700 mb-2">
-            Lớp *
-          </label>
+          <label className="block text-sm font-semibold text-gray-700 mb-2">Lớp *</label>
           <select
             value={grade}
             onChange={(e) => setGrade(e.target.value)}
@@ -99,9 +95,7 @@ export default function GenerateForm({ onSubmit }: GenerateFormProps) {
       </div>
 
       <div>
-        <label className="block text-sm font-semibold text-gray-700 mb-2">
-          Tên bài học *
-        </label>
+        <label className="block text-sm font-semibold text-gray-700 mb-2">Tên bài học *</label>
         <input
           type="text"
           value={topic}
@@ -113,9 +107,7 @@ export default function GenerateForm({ onSubmit }: GenerateFormProps) {
       </div>
 
       <div>
-        <label className="block text-sm font-semibold text-gray-700 mb-2">
-          Mục tiêu bài học
-        </label>
+        <label className="block text-sm font-semibold text-gray-700 mb-2">Mục tiêu bài học</label>
         <textarea
           value={objectives}
           onChange={(e) => setObjectives(e.target.value)}
@@ -126,17 +118,15 @@ export default function GenerateForm({ onSubmit }: GenerateFormProps) {
       </div>
 
       <div>
-        <label className="block text-sm font-semibold text-gray-700 mb-3">
-          Mô hình dạy học
-        </label>
+        <label className="block text-sm font-semibold text-gray-700 mb-3">Mô hình dạy học</label>
         <div className="flex gap-4">
-          {(["5E", "3-phase"] as const).map((model) => (
+          {(['5E', '3-phase'] as const).map((model) => (
             <label
               key={model}
               className={`flex-1 p-4 rounded-xl border-2 cursor-pointer transition-all ${
                 teachingModel === model
-                  ? "border-blue-500 bg-blue-50"
-                  : "border-gray-200 bg-white hover:border-gray-300"
+                  ? 'border-blue-500 bg-blue-50'
+                  : 'border-gray-200 bg-white hover:border-gray-300'
               }`}
             >
               <input
@@ -147,7 +137,7 @@ export default function GenerateForm({ onSubmit }: GenerateFormProps) {
                 className="sr-only"
               />
               <div className="font-bold text-gray-800">
-                {model === "5E" ? "5E Model" : "3 Giai đoạn"}
+                {model === '5E' ? '5E Model' : '3 Giai đoạn'}
               </div>
             </label>
           ))}
@@ -165,7 +155,7 @@ export default function GenerateForm({ onSubmit }: GenerateFormProps) {
         disabled={loading || !subject || !grade || !topic}
         className="btn-primary w-full !py-4 text-lg disabled:opacity-50"
       >
-        {loading ? "Đang tạo..." : "🚀 Tạo giáo án"}
+        {loading ? 'Đang tạo...' : '🚀 Tạo giáo án'}
       </button>
     </form>
   );

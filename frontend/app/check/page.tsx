@@ -1,22 +1,22 @@
-"use client";
+'use client';
 
-import { useState } from "react";
-import Link from "next/link";
-import { checkQuality } from "@/lib/api";
-import ComplianceReport from "@/components/ComplianceReport";
+import { useState } from 'react';
+import Link from 'next/link';
+import { checkQuality } from '@/lib/api';
+import ComplianceReport from '@/components/ComplianceReport';
 
 export default function CheckPage() {
-  const [lessonPlanId, setLessonPlanId] = useState("");
+  const [lessonPlanId, setLessonPlanId] = useState('');
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState<any>(null);
-  const [error, setError] = useState("");
+  const [error, setError] = useState('');
 
   const handleCheck = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!lessonPlanId.trim()) return;
 
     setLoading(true);
-    setError("");
+    setError('');
     setResult(null);
 
     try {
@@ -38,9 +38,7 @@ export default function CheckPage() {
             <div className="w-9 h-9 rounded-lg bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center text-white font-bold text-sm">
               GA
             </div>
-            <span className="font-bold text-lg text-gray-800">
-              Giáo Án Thông Minh
-            </span>
+            <span className="font-bold text-lg text-gray-800">Giáo Án Thông Minh</span>
           </Link>
           <nav className="flex items-center gap-6">
             <Link
@@ -49,10 +47,7 @@ export default function CheckPage() {
             >
               Dashboard
             </Link>
-            <Link
-              href="/check"
-              className="text-blue-600 font-semibold text-sm"
-            >
+            <Link href="/check" className="text-blue-600 font-semibold text-sm">
               Kiểm tra
             </Link>
           </nav>
@@ -61,21 +56,15 @@ export default function CheckPage() {
 
       <main className="max-w-2xl mx-auto px-6 py-10">
         <div className="animate-slide-up">
-          <h1 className="text-3xl font-bold text-gray-800 mb-2">
-            🔍 Kiểm tra giáo án
-          </h1>
-          <p className="text-gray-500 mb-8">
-            Kiểm tra tính compliance với chuẩn GDPT 2018
-          </p>
+          <h1 className="text-3xl font-bold text-gray-800 mb-2">🔍 Kiểm tra giáo án</h1>
+          <p className="text-gray-500 mb-8">Kiểm tra tính compliance với chuẩn GDPT 2018</p>
 
           <form
             onSubmit={handleCheck}
             className="bg-white rounded-2xl p-8 shadow-sm border border-gray-100 space-y-6 mb-8"
           >
             <div>
-              <label className="block text-sm font-semibold text-gray-700 mb-2">
-                ID giáo án
-              </label>
+              <label className="block text-sm font-semibold text-gray-700 mb-2">ID giáo án</label>
               <input
                 type="text"
                 value={lessonPlanId}
@@ -99,7 +88,7 @@ export default function CheckPage() {
               className="btn-primary w-full !py-3.5 disabled:opacity-50"
               id="btn-check"
             >
-              {loading ? "Đang kiểm tra..." : "🔍 Kiểm tra"}
+              {loading ? 'Đang kiểm tra...' : '🔍 Kiểm tra'}
             </button>
           </form>
 

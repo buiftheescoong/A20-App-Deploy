@@ -1,10 +1,7 @@
-"use client";
+'use client';
 
-import { useState } from "react";
-import {
-  getClarificationQuestions,
-  submitClarificationAnswers,
-} from "@/lib/api";
+import { useState } from 'react';
+import { getClarificationQuestions, submitClarificationAnswers } from '@/lib/api';
 
 interface ClarificationDialogProps {
   taskId: string;
@@ -17,17 +14,15 @@ export default function ClarificationDialog({
   questions,
   onSubmitted,
 }: ClarificationDialogProps) {
-  const [answers, setAnswers] = useState<string[]>(
-    new Array(questions.length).fill("")
-  );
+  const [answers, setAnswers] = useState<string[]>(new Array(questions.length).fill(''));
   const [submitting, setSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState(false);
-  const [error, setError] = useState("");
+  const [error, setError] = useState('');
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setSubmitting(true);
-    setError("");
+    setError('');
 
     try {
       const formattedAnswers = questions.map((q, i) => ({
@@ -50,9 +45,7 @@ export default function ClarificationDialog({
       <div className="flex gap-3 items-start mb-6">
         <span className="text-2xl">💬</span>
         <div>
-          <h3 className="font-bold text-amber-800 text-lg">
-            Cần bổ sung thông tin
-          </h3>
+          <h3 className="font-bold text-amber-800 text-lg">Cần bổ sung thông tin</h3>
           <p className="text-amber-700 text-sm">
             Vui lòng trả lời để AI soạn giáo án chính xác hơn
           </p>
@@ -91,10 +84,10 @@ export default function ClarificationDialog({
           className="btn-primary w-full !py-3 disabled:opacity-50"
         >
           {submitted
-            ? "✅ Đã gửi — đang tiếp tục tạo giáo án..."
+            ? '✅ Đã gửi — đang tiếp tục tạo giáo án...'
             : submitting
-            ? "Đang gửi..."
-            : "📤 Gửi và tiếp tục"}
+              ? 'Đang gửi...'
+              : '📤 Gửi và tiếp tục'}
         </button>
       </form>
     </div>

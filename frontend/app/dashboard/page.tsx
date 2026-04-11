@@ -1,16 +1,16 @@
-"use client";
+'use client';
 
-import { useEffect, useState } from "react";
-import Link from "next/link";
-import { useRouter } from "next/navigation";
-import { supabase } from "@/lib/supabase";
-import { listLessonPlans, type LessonPlanResponse } from "@/lib/api";
+import { useEffect, useState } from 'react';
+import Link from 'next/link';
+import { useRouter } from 'next/navigation';
+import { supabase } from '@/lib/supabase';
+import { listLessonPlans, type LessonPlanResponse } from '@/lib/api';
 
 export default function DashboardPage() {
   const router = useRouter();
   const [plans, setPlans] = useState<LessonPlanResponse[]>([]);
   const [loading, setLoading] = useState(true);
-  const [userName, setUserName] = useState("");
+  const [userName, setUserName] = useState('');
 
   useEffect(() => {
     loadData();
@@ -22,15 +22,15 @@ export default function DashboardPage() {
         data: { user },
       } = await supabase.auth.getUser();
       if (!user) {
-        router.push("/login");
+        router.push('/login');
         return;
       }
-      setUserName(user.user_metadata?.full_name || user.email || "Giáo viên");
+      setUserName(user.user_metadata?.full_name || user.email || 'Giáo viên');
 
       const result = await listLessonPlans();
       setPlans(result.plans || []);
     } catch (err) {
-      console.error("Failed to load dashboard:", err);
+      console.error('Failed to load dashboard:', err);
     } finally {
       setLoading(false);
     }
@@ -38,15 +38,15 @@ export default function DashboardPage() {
 
   async function handleLogout() {
     await supabase.auth.signOut();
-    router.push("/login");
+    router.push('/login');
   }
 
   const statusLabel: Record<string, { text: string; class: string }> = {
-    completed: { text: "Hoàn thành", class: "badge-passed" },
-    failed: { text: "Thất bại", class: "badge-failed" },
-    pending: { text: "Đang chờ", class: "badge-pending" },
-    generating: { text: "Đang tạo", class: "badge-pending" },
-    clarifying: { text: "Cần bổ sung", class: "badge-pending" },
+    completed: { text: 'Hoàn thành', class: 'badge-passed' },
+    failed: { text: 'Thất bại', class: 'badge-failed' },
+    pending: { text: 'Đang chờ', class: 'badge-pending' },
+    generating: { text: 'Đang tạo', class: 'badge-pending' },
+    clarifying: { text: 'Cần bổ sung', class: 'badge-pending' },
   };
 
   return (
@@ -58,16 +58,11 @@ export default function DashboardPage() {
             <div className="w-9 h-9 rounded-lg bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center text-white font-bold text-sm">
               GA
             </div>
-            <span className="font-bold text-lg text-gray-800">
-              Giáo Án Thông Minh
-            </span>
+            <span className="font-bold text-lg text-gray-800">Giáo Án Thông Minh</span>
           </div>
 
           <nav className="hidden md:flex items-center gap-6">
-            <Link
-              href="/dashboard"
-              className="text-blue-600 font-semibold text-sm"
-            >
+            <Link href="/dashboard" className="text-blue-600 font-semibold text-sm">
               Dashboard
             </Link>
             <Link
@@ -86,8 +81,7 @@ export default function DashboardPage() {
 
           <div className="flex items-center gap-4">
             <span className="text-sm text-gray-500">
-              Xin chào,{" "}
-              <span className="font-semibold text-gray-700">{userName}</span>
+              Xin chào, <span className="font-semibold text-gray-700">{userName}</span>
             </span>
             <button
               onClick={handleLogout}
@@ -105,12 +99,8 @@ export default function DashboardPage() {
         {/* Title + CTA */}
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-8 gap-4">
           <div>
-            <h1 className="text-2xl font-bold text-gray-800">
-              Giáo án của tôi
-            </h1>
-            <p className="text-gray-500 mt-1">
-              Quản lý và tạo mới giáo án chuẩn GDPT 2018
-            </p>
+            <h1 className="text-2xl font-bold text-gray-800">Giáo án của tôi</h1>
+            <p className="text-gray-500 mt-1">Quản lý và tạo mới giáo án chuẩn GDPT 2018</p>
           </div>
           <Link href="/generate" className="btn-primary" id="btn-new-plan">
             ✨ Tạo giáo án mới
@@ -132,12 +122,8 @@ export default function DashboardPage() {
         ) : plans.length === 0 ? (
           <div className="text-center py-20 bg-white rounded-2xl border border-gray-100">
             <div className="text-5xl mb-4">📝</div>
-            <h3 className="text-xl font-semibold text-gray-700 mb-2">
-              Chưa có giáo án nào
-            </h3>
-            <p className="text-gray-400 mb-6">
-              Bắt đầu tạo giáo án đầu tiên của bạn ngay!
-            </p>
+            <h3 className="text-xl font-semibold text-gray-700 mb-2">Chưa có giáo án nào</h3>
+            <p className="text-gray-400 mb-6">Bắt đầu tạo giáo án đầu tiên của bạn ngay!</p>
             <Link href="/generate" className="btn-primary">
               ✨ Tạo giáo án mới
             </Link>
@@ -153,9 +139,7 @@ export default function DashboardPage() {
                   className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100 card-hover block"
                 >
                   <div className="flex justify-between items-start mb-3">
-                    <h3 className="font-semibold text-gray-800 line-clamp-2">
-                      {plan.topic}
-                    </h3>
+                    <h3 className="font-semibold text-gray-800 line-clamp-2">{plan.topic}</h3>
                     <span className={status.class}>{status.text}</span>
                   </div>
                   <div className="flex items-center gap-2 text-sm text-gray-500 mb-3">
@@ -167,12 +151,12 @@ export default function DashboardPage() {
                     <span>{plan.teaching_model}</span>
                   </div>
                   <div className="text-xs text-gray-400">
-                    {new Date(plan.created_at).toLocaleDateString("vi-VN", {
-                      day: "2-digit",
-                      month: "2-digit",
-                      year: "numeric",
-                      hour: "2-digit",
-                      minute: "2-digit",
+                    {new Date(plan.created_at).toLocaleDateString('vi-VN', {
+                      day: '2-digit',
+                      month: '2-digit',
+                      year: 'numeric',
+                      hour: '2-digit',
+                      minute: '2-digit',
                     })}
                   </div>
                   {plan.is_blank_template && (

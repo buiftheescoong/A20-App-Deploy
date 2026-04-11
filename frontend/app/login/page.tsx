@@ -1,23 +1,23 @@
-"use client";
+'use client';
 
-import { useState } from "react";
-import { useRouter } from "next/navigation";
-import Link from "next/link";
-import { supabase } from "@/lib/supabase";
+import { useState } from 'react';
+import { useRouter } from 'next/navigation';
+import Link from 'next/link';
+import { supabase } from '@/lib/supabase';
 
 export default function LoginPage() {
   const router = useRouter();
   const [isLogin, setIsLogin] = useState(true);
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [fullName, setFullName] = useState("");
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [fullName, setFullName] = useState('');
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState("");
+  const [error, setError] = useState('');
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
-    setError("");
+    setError('');
 
     try {
       if (isLogin) {
@@ -36,9 +36,9 @@ export default function LoginPage() {
         });
         if (error) throw error;
       }
-      router.push("/dashboard");
+      router.push('/dashboard');
     } catch (err: any) {
-      setError(err.message || "Đã xảy ra lỗi");
+      setError(err.message || 'Đã xảy ra lỗi');
     } finally {
       setLoading(false);
     }
@@ -53,29 +53,23 @@ export default function LoginPage() {
             <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center text-white font-bold text-xl shadow-lg">
               GA
             </div>
-            <span className="text-white font-bold text-2xl">
-              Giáo Án Thông Minh
-            </span>
+            <span className="text-white font-bold text-2xl">Giáo Án Thông Minh</span>
           </Link>
         </div>
 
         {/* Card */}
         <div className="glass rounded-2xl p-8 border border-white/10 animate-fade-in">
           <h1 className="text-2xl font-bold text-white mb-2 text-center">
-            {isLogin ? "Đăng nhập" : "Tạo tài khoản"}
+            {isLogin ? 'Đăng nhập' : 'Tạo tài khoản'}
           </h1>
           <p className="text-gray-400 text-center mb-6">
-            {isLogin
-              ? "Chào mừng bạn quay lại"
-              : "Bắt đầu soạn giáo án thông minh"}
+            {isLogin ? 'Chào mừng bạn quay lại' : 'Bắt đầu soạn giáo án thông minh'}
           </p>
 
           <form onSubmit={handleSubmit} className="space-y-4">
             {!isLogin && (
               <div>
-                <label className="block text-sm font-medium text-gray-300 mb-1.5">
-                  Họ và tên
-                </label>
+                <label className="block text-sm font-medium text-gray-300 mb-1.5">Họ và tên</label>
                 <input
                   type="text"
                   value={fullName}
@@ -89,9 +83,7 @@ export default function LoginPage() {
             )}
 
             <div>
-              <label className="block text-sm font-medium text-gray-300 mb-1.5">
-                Email
-              </label>
+              <label className="block text-sm font-medium text-gray-300 mb-1.5">Email</label>
               <input
                 type="email"
                 value={email}
@@ -104,9 +96,7 @@ export default function LoginPage() {
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-300 mb-1.5">
-                Mật khẩu
-              </label>
+              <label className="block text-sm font-medium text-gray-300 mb-1.5">Mật khẩu</label>
               <input
                 type="password"
                 value={password}
@@ -133,10 +123,7 @@ export default function LoginPage() {
             >
               {loading ? (
                 <span className="flex items-center justify-center gap-2">
-                  <svg
-                    className="animate-spin h-5 w-5"
-                    viewBox="0 0 24 24"
-                  >
+                  <svg className="animate-spin h-5 w-5" viewBox="0 0 24 24">
                     <circle
                       className="opacity-25"
                       cx="12"
@@ -155,9 +142,9 @@ export default function LoginPage() {
                   Đang xử lý...
                 </span>
               ) : isLogin ? (
-                "Đăng nhập"
+                'Đăng nhập'
               ) : (
-                "Tạo tài khoản"
+                'Tạo tài khoản'
               )}
             </button>
           </form>
@@ -166,14 +153,12 @@ export default function LoginPage() {
             <button
               onClick={() => {
                 setIsLogin(!isLogin);
-                setError("");
+                setError('');
               }}
               className="text-blue-400 hover:text-blue-300 text-sm font-medium transition-colors"
               id="btn-toggle-auth"
             >
-              {isLogin
-                ? "Chưa có tài khoản? Đăng ký"
-                : "Đã có tài khoản? Đăng nhập"}
+              {isLogin ? 'Chưa có tài khoản? Đăng ký' : 'Đã có tài khoản? Đăng nhập'}
             </button>
           </div>
         </div>

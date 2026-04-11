@@ -5,26 +5,20 @@
 
 export interface GenerateResponse {
   task_id: string;
-  status: "pending";
+  status: 'pending';
 }
 
 export interface StatusResponse {
   task_id: string;
-  status:
-    | "pending"
-    | "clarifying"
-    | "generating"
-    | "retrying"
-    | "completed"
-    | "failed";
+  status: 'pending' | 'clarifying' | 'generating' | 'retrying' | 'completed' | 'failed';
   progress_step?:
-    | "intake_done"
-    | "rag_done"
-    | "clarification_needed"
-    | "draft_ready"
-    | "quality_done"
-    | "export_done"
-    | "blank_template_ready";
+    | 'intake_done'
+    | 'rag_done'
+    | 'clarification_needed'
+    | 'draft_ready'
+    | 'quality_done'
+    | 'export_done'
+    | 'blank_template_ready';
   lesson_plan_id?: string;
   clarification_needed: boolean;
   is_blank_template: boolean;
@@ -47,7 +41,7 @@ export interface LessonPlanJSON {
     subject: string;
     grade: string;
     topic: string;
-    teaching_model: "5E" | "3-phase";
+    teaching_model: '5E' | '3-phase';
     duration_minutes: number;
     objectives: string[];
     competencies: string[];
@@ -56,7 +50,7 @@ export interface LessonPlanJSON {
   sections: Record<string, SectionContent>;
   rag_sources: string[];
   compliance: {
-    status: "PASSED" | "FAILED";
+    status: 'PASSED' | 'FAILED';
     errors: Array<{
       section: string;
       issue: string;
@@ -71,10 +65,10 @@ export interface LessonPlanResponse {
   subject: string;
   grade: string;
   topic: string;
-  teaching_model: "5E" | "3-phase";
+  teaching_model: '5E' | '3-phase';
   objectives: string[];
   content_json: LessonPlanJSON;
-  compliance_status: "PASSED" | "FAILED" | "PENDING";
+  compliance_status: 'PASSED' | 'FAILED' | 'PENDING';
   docx_url?: string;
   is_blank_template: boolean;
   status: string;
