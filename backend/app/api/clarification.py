@@ -53,12 +53,15 @@ async def submit_answers(
     Submit teacher's answers to clarification questions.
     Resumes the pipeline with enriched context.
     """
+    state = get_task_state(task_id)
+    if not state:
+        raise HTTPException(status_code=404, detail="Clarification task not found")
+
     await submit_clarification_answers(task_id, request.answers)
 
     # Resume pipeline with clarification answers
-    state = get_task_state(task_id)
-    user_id = state["user_id"] if state else "mock-user-id"
-    user_input = state["user_input"] if state else {}
+    user_id = state["user_id"]
+    user_input = state["user_input"]
 
     background_tasks.add_task(
         run_pipeline, task_id, user_id, user_input, request.answers
