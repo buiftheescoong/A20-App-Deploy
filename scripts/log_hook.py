@@ -8,6 +8,7 @@ import json
 import os
 import sys
 import subprocess
+import io
 from datetime import datetime, timezone, timedelta
 from pathlib import Path
 
@@ -17,7 +18,7 @@ VN_TZ = timezone(timedelta(hours=7))
 def git(cmd):
     try:
         return subprocess.check_output(
-            cmd, shell=True, text=True, stderr=subprocess.DEVNULL
+            cmd, shell=True, text=True, stderr=subprocess.DEVNULL, encoding="utf-8"
         ).strip()
     except Exception:
         return ""
@@ -43,6 +44,8 @@ def detect_tool(data: dict) -> str:
             return "copilot"
     if "hook_event_name" in data:
         return "claude"
+    if data.get("tool") == "antigravity" or tool_env == "antigravity":
+        return "antigravity"
     return "unknown"
 
 
@@ -140,6 +143,16 @@ def normalize(data: dict, tool: str) -> dict | None:
             }
         )
 
+    elif tool == "antigravity":
+        base.update(
+            {
+                "prompt": data.get("prompt", "")[:1000],
+                "tool_name": data.get("tool_name", ""),
+                "tool_input": data.get("tool_input"),
+                "tool_response": str(data.get("tool_response", ""))[:500],
+            }
+        )
+
     # Skip empty/noise events
     if not base.get("prompt") and event not in (
         "Stop",
@@ -154,6 +167,12 @@ def normalize(data: dict, tool: str) -> dict | None:
 
 
 def main():
+    # Force UTF-8 for stdin and stdout (critical for Windows)
+    if hasattr(sys.stdin, "reconfigure"):
+        sys.stdin.reconfigure(encoding="utf-8-sig")
+    if hasattr(sys.stdout, "reconfigure"):
+        sys.stdout.reconfigure(encoding="utf-8")
+
     raw = sys.stdin.read().strip()
     if not raw:
         sys.exit(0)
