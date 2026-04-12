@@ -42,8 +42,10 @@ async def process_and_ingest_document(
 ):
     """Background task to extract, chunk, embed, and store document."""
     try:
-        logger.info(f"Starting KB ingestion for {filename} (Subject: {subject}, Grade: {grade})")
-        
+        logger.info(
+            f"Starting KB ingestion for {filename} (Subject: {subject}, Grade: {grade})"
+        )
+
         # 1. Extract text (supports PDF for now)
         if filename.lower().endswith(".pdf"):
             text = extract_text_from_pdf(file_bytes)
@@ -68,11 +70,10 @@ async def process_and_ingest_document(
         batch_size = 20
         for i in range(0, len(chunks), batch_size):
             batch_chunks = chunks[i : i + batch_size]
-            
+
             # Request embeddings concurrently
             response = await client.embeddings.create(
-                input=batch_chunks,
-                model="text-embedding-3-small"
+                input=batch_chunks, model="text-embedding-3-small"
             )
             embeddings = [data.embedding for data in response.data]
 
@@ -81,13 +82,15 @@ async def process_and_ingest_document(
                 # We identify user uploaded files by appending UserID to source
                 # If subject/grade are not provided, we use 'Custom'
                 source_id = f"custom_{user_id}_{filename}"
-                records.append({
-                    "source": source_id,
-                    "subject": subject or "Chung",
-                    "grade": grade or "Khác",
-                    "content": chunk_text,
-                    "embedding": embeddings[j]
-                })
+                records.append(
+                    {
+                        "source": source_id,
+                        "subject": subject or "Chung",
+                        "grade": grade or "Khác",
+                        "content": chunk_text,
+                        "embedding": embeddings[j],
+                    }
+                )
 
             # Insert batch into Supabase
             if records:
@@ -115,7 +118,8 @@ async def upload_knowledge_document(
     """
     if not file.filename.lower().endswith((".pdf", ".txt")):
         raise HTTPException(
-            status_code=400, detail="Unsupported file format. Only PDF and TXT are supported."
+            status_code=400,
+            detail="Unsupported file format. Only PDF and TXT are supported.",
         )
 
     # Read bytes synchronously to avoid background task scope issue
@@ -139,5 +143,5 @@ async def upload_knowledge_document(
         "filename": file.filename,
         "subject": subject,
         "grade": grade,
-        "status": "processing"
+        "status": "processing",
     }

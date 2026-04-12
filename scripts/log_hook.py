@@ -3,7 +3,6 @@
 Shared AI hook logger — works with Claude Code, Gemini CLI, Codex, Cursor, Copilot.
 Reads JSON from stdin, normalizes to common format, appends to .ai-log/session.jsonl
 """
-
 import json
 import os
 import sys
@@ -44,7 +43,7 @@ def detect_tool(data: dict) -> str:
             return "copilot"
     if "hook_event_name" in data:
         return "claude"
-    if data.get("tool") == "antigravity" or tool_env == "antigravity":
+    if data.get("tool") == "antigravity":
         return "antigravity"
     return "unknown"
 
