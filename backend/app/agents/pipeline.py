@@ -76,6 +76,11 @@ def update_task_state(task_id: str, updates: dict):
         task_store[task_id].update(updates)
 
 
+def _get_resume_state(task_id: str) -> dict:
+    """Get the latest stored state when resuming after clarification."""
+    return task_store.get(task_id, {})
+
+
 # ─── Pipeline Execution ───────────────────────────────────────────
 
 async def run_pipeline(
@@ -90,6 +95,8 @@ async def run_pipeline(
     This function is called as a background task.
     If clarification_answers are provided, it resumes from the RAG step.
     """
+    previous_state = _get_resume_state(task_id) if clarification_answers else {}
+
     # Initialize state
     state: PipelineState = {
         "task_id": task_id,
@@ -114,6 +121,17 @@ async def run_pipeline(
         "error": None,
         "progress_step": "started",
     }
+
+    if previous_state:
+        state["normalized_input"] = previous_state.get("normalized_input")
+        state["rag_context"] = previous_state.get("rag_context", [])
+        state["low_confidence"] = previous_state.get("low_confidence", False)
+        state["clarification_questions"] = previous_state.get("clarification_questions", [])
+        state["current_model"] = previous_state.get("current_model", settings.PRIMARY_MODEL)
+        state["fallback_model"] = previous_state.get("fallback_model")
+        state["retry_count"] = previous_state.get("retry_count", 0)
+        state["progress_step"] = previous_state.get("progress_step", "resuming")
+
     task_store[task_id] = state
 
     try:
@@ -174,6 +192,9 @@ async def run_pipeline(
         else:
             # Resuming after clarification
             plan_record = get_lesson_plan_by_task_id(task_id)
+            if not plan_record:
+                raise ValueError(f"Lesson plan record not found for task {task_id}")
+
             state["normalized_input"] = {
                 "subject": plan_record["subject"],
                 "grade": plan_record["grade"],
@@ -215,6 +236,7 @@ async def run_pipeline(
                 )
                 state["draft_plan"] = draft
                 state["current_model"] = model_used
+                state["fallback_model"] = model_used or state.get("fallback_model")
                 state["is_blank_template"] = is_blank
                 task_store[task_id] = state
 
@@ -262,6 +284,7 @@ async def run_pipeline(
             else:
                 state["final_plan"] = draft
                 state["current_model"] = model_used
+                state["fallback_model"] = model_used or state.get("fallback_model")
 
             task_store[task_id] = state
 
