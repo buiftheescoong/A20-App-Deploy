@@ -114,6 +114,7 @@ class StatusResponse(BaseModel):
     clarification_needed: bool = False
     is_blank_template: bool = False
     error: Optional[str] = None
+    draft_content: Optional[dict] = None
 
 
 class ClarificationResponse(BaseModel):

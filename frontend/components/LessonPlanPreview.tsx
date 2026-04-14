@@ -1,16 +1,17 @@
-'use client';
+import TypewriterText from './TypewriterText';
 
 interface LessonPlanPreviewProps {
   plan: {
-    id: string;
+    id?: string;
     subject: string;
     grade: string;
     topic: string;
     teaching_model: string;
     objectives: string[];
-    content_json: any;
-    compliance_status: string;
+    content_json?: any;
+    compliance_status?: string;
   };
+  isStreaming?: boolean;
 }
 
 const SECTION_LABELS_5E: Record<string, string> = {
@@ -27,137 +28,155 @@ const SECTION_LABELS_3PHASE: Record<string, string> = {
   practice: 'Hoạt động 3: LUYỆN TẬP',
 };
 
-export default function LessonPlanPreview({ plan }: LessonPlanPreviewProps) {
+export default function LessonPlanPreview({ plan, isStreaming }: LessonPlanPreviewProps) {
   const content = plan.content_json;
-  if (!content) return null;
+  if (!content && !isStreaming) return null;
 
-  const metadata = content.metadata || {};
-  const sections = content.sections || {};
-  const compliance = content.compliance || {};
+  const metadata = content?.metadata || plan || {};
+  const sections = content?.sections || {};
+  const compliance = content?.compliance || {};
   const teachingModel = metadata.teaching_model || plan.teaching_model;
   const sectionLabels = teachingModel === '5E' ? SECTION_LABELS_5E : SECTION_LABELS_3PHASE;
 
   return (
-    <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden animate-fade-in">
-      {/* Header */}
-      <div className="bg-gradient-to-r from-blue-600 to-purple-600 p-6 text-white">
-        <h2 className="text-2xl font-bold mb-1">KẾ HOẠCH BÀI DẠY</h2>
-        <div className="grid grid-cols-2 gap-2 text-sm opacity-90 mt-3">
+    <div className="bg-white rounded-xl shadow-xl border border-gray-100 overflow-hidden min-h-full flex flex-col transition-all duration-500 hover:shadow-2xl">
+      {/* Document Header - Paper Look */}
+      <div className="p-10 border-b border-gray-50 bg-white">
+        <div className="flex justify-between items-start mb-8">
           <div>
-            <span className="opacity-70">Môn:</span>{' '}
-            <strong>{metadata.subject || plan.subject}</strong>
+            <span className="text-blue-600 font-bold tracking-widest text-xs uppercase mb-2 block">
+              Kế hoạch bài dạy
+            </span>
+            <h2 className="text-3xl font-extrabold text-gray-900 leading-tight">
+              {metadata.topic || 'Đang chuẩn bị tiêu đề...'}
+            </h2>
           </div>
-          <div>
-            <span className="opacity-70">Lớp:</span> <strong>{metadata.grade || plan.grade}</strong>
-          </div>
-          <div>
-            <span className="opacity-70">Bài:</span> <strong>{metadata.topic || plan.topic}</strong>
-          </div>
-          <div>
-            <span className="opacity-70">Thời gian:</span>{' '}
-            <strong>{metadata.duration_minutes || 45} phút</strong>
-          </div>
+          {compliance.status && (
+            <span
+              className={`inline-flex items-center px-4 py-1.5 rounded-full text-xs font-bold uppercase tracking-wider ${
+                compliance.status === 'PASSED'
+                  ? 'bg-green-100 text-green-700'
+                  : 'bg-amber-100 text-amber-700'
+              }`}
+            >
+              {compliance.status === 'PASSED' ? '✓ Đã kiểm định' : '○ Đang kiểm định'}
+            </span>
+          )}
         </div>
 
-        {/* Compliance badge */}
-        <div className="mt-4">
-          <span
-            className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-bold ${
-              compliance.status === 'PASSED'
-                ? 'bg-green-400/20 text-green-100 border border-green-300/30'
-                : 'bg-red-400/20 text-red-100 border border-red-300/30'
-            }`}
-          >
-            {compliance.status === 'PASSED' ? '✅ PASSED' : '❌ FAILED'}
-          </span>
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-6 p-6 rounded-2xl bg-gray-50 border border-gray-100/50">
+          <div>
+            <p className="text-[10px] font-bold text-gray-400 uppercase tracking-tighter mb-1">
+              Môn học
+            </p>
+            <p className="font-semibold text-gray-800">{metadata.subject}</p>
+          </div>
+          <div>
+            <p className="text-[10px] font-bold text-gray-400 uppercase tracking-tighter mb-1">
+              Lớp
+            </p>
+            <p className="font-semibold text-gray-800">{metadata.grade}</p>
+          </div>
+          <div>
+            <p className="text-[10px] font-bold text-gray-400 uppercase tracking-tighter mb-1">
+              Thời lượng
+            </p>
+            <p className="font-semibold text-gray-800">{metadata.duration_minutes || 45} phút</p>
+          </div>
+          <div>
+            <p className="text-[10px] font-bold text-gray-400 uppercase tracking-tighter mb-1">
+              Mô hình
+            </p>
+            <p className="font-semibold text-gray-800 uppercase">{teachingModel}</p>
+          </div>
         </div>
       </div>
 
-      <div className="p-6 space-y-6">
+      <div className="p-10 space-y-12">
         {/* Objectives */}
-        <section>
-          <h3 className="text-lg font-bold text-gray-800 mb-3 border-b pb-2">I. MỤC TIÊU</h3>
-          <div className="space-y-2">
-            <h4 className="font-semibold text-gray-700 text-sm">Năng lực:</h4>
-            <ul className="list-disc pl-6 text-gray-600 space-y-1 text-sm">
-              {(metadata.objectives || plan.objectives || []).map((obj: string, i: number) => (
-                <li key={i}>{obj}</li>
-              ))}
-            </ul>
-            {metadata.competencies?.length > 0 && (
-              <>
-                <h4 className="font-semibold text-gray-700 text-sm mt-3">Phẩm chất:</h4>
-                <ul className="list-disc pl-6 text-gray-600 space-y-1 text-sm">
-                  {metadata.competencies.map((c: string, i: number) => (
-                    <li key={i}>{c}</li>
-                  ))}
-                </ul>
-              </>
-            )}
+        <section className="relative">
+          <div className="absolute -left-4 top-0 bottom-0 w-1 bg-blue-500 rounded-full opacity-20"></div>
+          <h3 className="text-xl font-bold text-gray-900 mb-6 flex items-center gap-3">
+            <span className="w-8 h-8 rounded-lg bg-blue-50 text-blue-600 flex items-center justify-center text-sm font-black">
+              I
+            </span>
+            Mục tiêu bài học
+          </h3>
+          <div className="space-y-4 ml-4">
+            <div>
+              <h4 className="font-bold text-gray-500 text-xs uppercase tracking-widest mb-3">
+                Năng lực & Phẩm chất
+              </h4>
+              <ul className="grid grid-cols-1 gap-3">
+                {(metadata.objectives || []).map((obj: string, i: number) => (
+                  <li key={i} className="flex gap-3 text-gray-700 leading-relaxed text-sm">
+                    <span className="text-blue-500 mt-1.5">•</span>
+                    <span>{obj}</span>
+                  </li>
+                ))}
+                {(metadata.competencies || []).map((c: string, i: number) => (
+                  <li key={i} className="flex gap-3 text-gray-700 leading-relaxed text-sm">
+                    <span className="text-purple-500 mt-1.5">•</span>
+                    <span>{c}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
           </div>
         </section>
 
-        {/* Materials */}
-        {metadata.materials?.length > 0 && (
-          <section>
-            <h3 className="text-lg font-bold text-gray-800 mb-3 border-b pb-2">
-              II. THIẾT BỊ VÀ HỌC LIỆU
-            </h3>
-            <ul className="list-disc pl-6 text-gray-600 space-y-1 text-sm">
-              {metadata.materials.map((m: string, i: number) => (
-                <li key={i}>{m}</li>
-              ))}
-            </ul>
-          </section>
-        )}
-
         {/* Sections / Activities */}
-        <section>
-          <h3 className="text-lg font-bold text-gray-800 mb-4 border-b pb-2">
-            III. TIẾN TRÌNH DẠY HỌC
+        <section className="relative">
+          <div className="absolute -left-4 top-0 bottom-0 w-1 bg-purple-500 rounded-full opacity-20"></div>
+          <h3 className="text-xl font-bold text-gray-900 mb-8 flex items-center gap-3">
+            <span className="w-8 h-8 rounded-lg bg-purple-50 text-purple-600 flex items-center justify-center text-sm font-black">
+              II
+            </span>
+            Tiến trình dạy học
           </h3>
-          <div className="space-y-4">
-            {Object.entries(sectionLabels).map(([key, label]) => {
+          <div className="space-y-10 ml-4">
+            {Object.entries(sectionLabels).map(([key, label], index) => {
               const section = sections[key];
-              if (!section) return null;
+              if (!section && !isStreaming) return null;
 
               return (
-                <div key={key} className="bg-gray-50 rounded-xl p-5 border border-gray-100">
-                  <div className="flex justify-between items-start mb-3">
-                    <h4 className="font-bold text-gray-800">{label}</h4>
-                    {section.duration && (
-                      <span className="text-xs bg-blue-100 text-blue-700 px-2 py-1 rounded-full font-medium">
-                        {section.duration} phút
+                <div key={key} className="group">
+                  <div className="flex justify-between items-center mb-4">
+                    <h4 className="font-bold text-gray-900 group-hover:text-blue-600 transition-colors">
+                      {label}
+                    </h4>
+                    {section?.duration && (
+                      <span className="text-[10px] font-black bg-gray-100 text-gray-500 px-2.5 py-1 rounded-md uppercase tracking-tighter">
+                        {section.duration} PHÚT
                       </span>
                     )}
                   </div>
-                  <div className="text-gray-600 text-sm leading-relaxed whitespace-pre-wrap">
-                    {section.content}
+                  <div className="text-gray-600 text-base leading-relaxed whitespace-pre-wrap pl-4 border-l-2 border-gray-50 group-hover:border-blue-100 transition-colors">
+                    {section?.content ? (
+                      isStreaming ? (
+                        <TypewriterText text={section.content} speed={2} />
+                      ) : (
+                        section.content
+                      )
+                    ) : (
+                      <div className="flex gap-1">
+                        <span className="w-1.5 h-1.5 rounded-full bg-gray-200 animate-bounce"></span>
+                        <span
+                          className="w-1.5 h-1.5 rounded-full bg-gray-200 animate-bounce"
+                          style={{ animationDelay: '0.2s' }}
+                        ></span>
+                        <span
+                          className="w-1.5 h-1.5 rounded-full bg-gray-200 animate-bounce"
+                          style={{ animationDelay: '0.4s' }}
+                        ></span>
+                      </div>
+                    )}
                   </div>
                 </div>
               );
             })}
           </div>
         </section>
-
-        {/* Compliance Errors */}
-        {compliance.errors?.length > 0 && (
-          <section>
-            <h3 className="text-lg font-bold text-red-600 mb-3 border-b border-red-200 pb-2">
-              ⚠️ Lỗi cần lưu ý
-            </h3>
-            <div className="space-y-2">
-              {compliance.errors.map((err: any, i: number) => (
-                <div key={i} className="p-3 rounded-lg bg-red-50 border border-red-100 text-sm">
-                  <div className="font-medium text-red-700">
-                    [{err.section}] {err.issue}
-                  </div>
-                  {err.suggestion && <div className="text-red-500 mt-1">💡 {err.suggestion}</div>}
-                </div>
-              ))}
-            </div>
-          </section>
-        )}
       </div>
     </div>
   );

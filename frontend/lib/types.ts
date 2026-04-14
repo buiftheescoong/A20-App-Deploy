@@ -23,6 +23,7 @@ export interface StatusResponse {
   clarification_needed: boolean;
   is_blank_template: boolean;
   error?: string;
+  draft_content?: LessonPlanJSON;
 }
 
 export interface ClarificationResponse {
