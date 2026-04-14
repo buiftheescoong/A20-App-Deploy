@@ -3,6 +3,7 @@
 interface ProgressTrackerProps {
   currentStep: string;
   status: string;
+  minimal?: boolean;
 }
 
 const STEPS = [
@@ -48,7 +49,17 @@ function mapProgressToStep(progressStep: string): string {
   return map[progressStep] || 'intake';
 }
 
-export default function ProgressTracker({ currentStep, status }: ProgressTrackerProps) {
+export default function ProgressTracker({ currentStep, status, minimal }: ProgressTrackerProps) {
+  if (minimal) {
+    const activeStep = STEPS.find(s => getStepStatus(s.key, currentStep, status) === 'active') || STEPS[0];
+    return (
+      <div className="flex items-center gap-2 px-4 py-1.5 bg-gray-50 rounded-full border border-gray-100">
+        <span className="animate-pulse w-2 h-2 rounded-full bg-blue-500"></span>
+        <span className="text-[10px] font-bold text-gray-500 uppercase tracking-widest">{activeStep.label}...</span>
+      </div>
+    );
+  }
+
   return (
     <div className="bg-white rounded-2xl p-8 shadow-sm border border-gray-100">
       <h3 className="text-sm font-semibold text-gray-500 uppercase tracking-wider mb-6">

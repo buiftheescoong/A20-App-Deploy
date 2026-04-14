@@ -3,11 +3,13 @@
 import { useEffect, useState, useRef } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { getStatus, getLessonPlan, type StatusResponse } from '@/lib/api';
+import { getStatus, getLessonPlan } from '@/lib/api';
+import { StatusResponse } from '@/lib/types';
 import LessonPlanPreview from '@/components/LessonPlanPreview';
 import BlankTemplateAlert from '@/components/BlankTemplateAlert';
 import ExportButton from '@/components/ExportButton';
 import ProgressTracker from '@/components/ProgressTracker';
+import RefinementChatUI from '@/components/RefinementChatUI';
 
 export default function GenerateProgressPage() {
   const params = useParams();
@@ -32,18 +34,14 @@ export default function GenerateProgressPage() {
       const result = await getStatus(taskId);
       setStatus(result);
 
-      // Redirect to clarification page if needed
       if (result.status === 'clarifying') {
         if (intervalRef.current) clearInterval(intervalRef.current);
         router.push(`/generate/${taskId}/clarify`);
         return;
       }
 
-      // Stop polling when done
       if (result.status === 'completed' || result.status === 'failed') {
         if (intervalRef.current) clearInterval(intervalRef.current);
-
-        // Load the full lesson plan
         if (result.lesson_plan_id) {
           try {
             const plan = await getLessonPlan(result.lesson_plan_id);
@@ -59,95 +57,122 @@ export default function GenerateProgressPage() {
     }
   }
 
-  const isComplete = status?.status === 'completed' || status?.status === 'failed';
+  const isGenerating = status?.status !== 'completed' && status?.status !== 'failed' && status?.status !== 'clarifying';
+  const isComplete = status?.status === 'completed';
+
+  const handleRefine = (message: string) => {
+    console.log('Refinement requested:', message);
+    // In actual implementation, this would call the /api/edit endpoint
+  };
+
+  // If there's an unrecoverable error or blank template, we show a simplified state
+  if (error || (status?.status === 'failed' && !status.is_blank_template)) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex flex-col">
+        <main className="flex-1 flex items-center justify-center p-6">
+          <div className="max-w-md w-full bg-white rounded-3xl p-10 shadow-xl border border-red-100 text-center animate-slide-up">
+            <div className="text-6xl mb-6">⚠️</div>
+            <h2 className="text-2xl font-bold text-gray-800 mb-4">Đã có lỗi xảy ra</h2>
+            <p className="text-gray-500 mb-8">{error || status?.error || 'Không xác định.'}</p>
+            <Link href="/generate" className="btn-primary inline-block w-full text-center">Thử lại</Link>
+          </div>
+        </main>
+      </div>
+    );
+  }
+
+  if (status?.is_blank_template) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center p-6">
+        <BlankTemplateAlert taskId={taskId} onRetry={() => router.push('/generate')} />
+      </div>
+    );
+  }
+
+  // Split-Screen Default State
+  const displayPlan = lessonPlan || {
+    ...status?.draft_content?.metadata,
+    content_json: status?.draft_content,
+  };
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      {/* Header */}
-      <header className="bg-white border-b border-gray-200 sticky top-0 z-40">
-        <div className="max-w-7xl mx-auto px-6 py-4 flex justify-between items-center">
+    <div className="h-screen flex flex-col bg-gray-50 overflow-hidden">
+      {/* Global Header */}
+      <header className="bg-white border-b border-gray-200 z-50">
+        <div className="max-w-full mx-auto px-6 py-3 flex justify-between items-center">
           <Link href="/dashboard" className="flex items-center gap-3">
-            <div className="w-9 h-9 rounded-lg bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center text-white font-bold text-sm">
+            <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center text-white font-bold text-xs">
               GA
             </div>
-            <span className="font-bold text-lg text-gray-800">Giáo Án Thông Minh</span>
+            <span className="font-bold text-base text-gray-800">Giáo Án Thông Minh</span>
           </Link>
-          <Link href="/dashboard" className="text-gray-500 hover:text-gray-700 text-sm font-medium">
-            ← Quay về Dashboard
-          </Link>
+          <div className="flex items-center gap-4">
+            <div className="hidden md:block">
+               {isComplete ? (
+                 <div className="px-3 py-1 bg-green-50 text-green-600 border border-green-200 rounded-full text-xs font-bold flex items-center gap-1">
+                   <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" /></svg>
+                   Hoàn thành
+                 </div>
+               ) : (
+                 <ProgressTracker
+                    currentStep={status?.progress_step || 'started'}
+                    status={status?.status || 'pending'}
+                    minimal
+                  />
+               )}
+            </div>
+            {isComplete && lessonPlan && <ExportButton planId={lessonPlan.id} />}
+            <Link href="/dashboard" className="text-gray-400 hover:text-gray-600 p-2">
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </Link>
+          </div>
         </div>
       </header>
 
-      <main className="max-w-4xl mx-auto px-6 py-10">
-        {/* Progress Tracker */}
-        <div className="mb-10">
-          <ProgressTracker
-            currentStep={status?.progress_step || 'started'}
-            status={status?.status || 'pending'}
-          />
-        </div>
-
-        {/* Error */}
-        {error && (
-          <div className="mb-6 p-4 rounded-xl bg-red-50 border border-red-200 text-red-600">
-            ❌ {error}
+      <div className="flex-1 flex overflow-hidden">
+        {/* Left Panel: Context & Chat */}
+        <aside className="w-[380px] border-r border-gray-200 bg-white flex flex-col shadow-xl z-10 transition-all duration-500 animate-slide-in-left">
+          <div className="p-6 bg-gray-50/50 border-b border-gray-100">
+             <h3 className="text-xs font-black text-gray-400 uppercase tracking-widest mb-4">Thông tin bài học</h3>
+             <div className="space-y-4">
+                <div className="bg-white p-4 rounded-xl shadow-sm border border-gray-100 relative overflow-hidden">
+                  {isGenerating && <div className="absolute top-0 left-0 w-full h-1 bg-blue-500/20"><div className="h-full bg-blue-500 animate-[pulse_2s_ease-in-out_infinite]" style={{ width: '50%' }}></div></div>}
+                  <p className="text-[10px] text-blue-500 font-bold uppercase mb-1">
+                    {displayPlan.subject || 'Đang phân tích...'} {displayPlan.grade ? `• Lớp ${displayPlan.grade}` : ''}
+                  </p>
+                  <p className={`font-bold text-gray-800 line-clamp-2 ${!displayPlan.topic && 'text-gray-400 animate-pulse'}`}>
+                    {displayPlan.topic || 'Hệ thống đang chuẩn bị giáo án...'}
+                  </p>
+                </div>
+             </div>
           </div>
-        )}
-
-        {/* Out-of-scope */}
-        {status?.error && status.status === 'failed' && !status.is_blank_template && (
-          <div className="bg-white rounded-2xl p-8 shadow-sm border border-gray-100 text-center">
-            <div className="text-5xl mb-4">🚫</div>
-            <h2 className="text-xl font-bold text-gray-800 mb-3">Không thể xử lý yêu cầu</h2>
-            <p className="text-gray-500 mb-6">{status.error}</p>
-            <Link href="/generate" className="btn-primary">
-              Thử lại
-            </Link>
+          
+          <div className="flex-1 flex flex-col overflow-hidden">
+              <div className="p-6 pb-2">
+                 <h3 className="text-xs font-black text-gray-400 uppercase tracking-widest">Hiệu chỉnh với AI</h3>
+              </div>
+              <RefinementChatUI onSendMessage={handleRefine} isLoading={isGenerating} />
           </div>
-        )}
+        </aside>
 
-        {/* Blank Template Alert */}
-        {status?.is_blank_template && (
-          <BlankTemplateAlert taskId={taskId} onRetry={() => router.push('/generate')} />
-        )}
+        {/* Right Panel: Document Preview */}
+        <main className="flex-1 bg-gray-100 p-8 overflow-y-auto overflow-x-hidden scrollbar-hide flex flex-col">
+           {isGenerating && (
+             <div className="max-w-4xl mx-auto w-full mb-6 relative z-10 animate-fade-in">
+               <ProgressTracker
+                 currentStep={status?.progress_step || 'started'}
+                 status={status?.status || 'pending'}
+               />
+             </div>
+           )}
 
-        {/* Generating... */}
-        {!isComplete && !error && (
-          <div className="bg-white rounded-2xl p-10 shadow-sm border border-gray-100 text-center">
-            <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-blue-100 mb-6">
-              <svg className="animate-spin h-8 w-8 text-blue-600" viewBox="0 0 24 24">
-                <circle
-                  className="opacity-25"
-                  cx="12"
-                  cy="12"
-                  r="10"
-                  stroke="currentColor"
-                  strokeWidth="4"
-                  fill="none"
-                />
-                <path
-                  className="opacity-75"
-                  fill="currentColor"
-                  d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"
-                />
-              </svg>
-            </div>
-            <h2 className="text-xl font-bold text-gray-800 mb-2">AI đang soạn giáo án...</h2>
-            <p className="text-gray-500">Quá trình này thường mất 2-3 phút. Vui lòng đợi.</p>
-          </div>
-        )}
-
-        {/* Lesson Plan Preview */}
-        {isComplete && lessonPlan && !status?.is_blank_template && (
-          <div className="space-y-6">
-            <div className="flex justify-between items-center">
-              <h2 className="text-2xl font-bold text-gray-800">✅ Giáo án hoàn thành!</h2>
-              <ExportButton planId={lessonPlan.id} />
-            </div>
-            <LessonPlanPreview plan={lessonPlan} />
-          </div>
-        )}
-      </main>
+           <div className={`max-w-4xl w-full mx-auto shadow-2xl rounded-xl transition-all duration-700 delay-150 ${(!displayPlan.content_json && !displayPlan.topic) ? 'opacity-50 scale-95' : 'opacity-100 scale-100'}`}>
+               <LessonPlanPreview plan={displayPlan} isStreaming={isGenerating} />
+           </div>
+        </main>
+      </div>
     </div>
   );
 }

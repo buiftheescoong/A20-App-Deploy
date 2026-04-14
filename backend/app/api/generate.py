@@ -84,4 +84,5 @@ async def get_generation_status(task_id: str):
         and state.get("status") == "clarifying",
         is_blank_template=state.get("is_blank_template", False),
         error=state.get("error"),
+        draft_content=state.get("draft_plan") or state.get("final_plan"),
     )
