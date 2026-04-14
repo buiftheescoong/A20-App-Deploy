@@ -4,14 +4,28 @@
 
 ---
 
+
 ## 1. AI Product Canvas
 
 | Dimension | Chi tiết |
 |---|---|
 | **Value** | Giảm 96% thời gian soạn giáo án (từ 1.5–2h → 3–5 phút); chuẩn hóa 100% format GDPT 2018; giảm 70% khối lượng review của Tổ trưởng |
 | **Trust** | Tuân thủ 100% template chuẩn Bộ GD&ĐT; Quality Checker minh bạch — trả về reason cụ thể cho từng lỗi; hỏi lại GV thay vì tự suy đoán khi thiếu thông tin |
-| **Feasibility** | Multi-Agent pipeline: Intake → RAG → Generate → Quality Check → Format (tối đa 2 vòng lặp). FastAPI async + Supabase đủ handle 1K+ GV |
+| **Feasibility** | Multi-Agent pipeline có Orchestrator Agent điều phối: Orchestrator → Intake → RAG → Generate → Quality Check → Format (tối đa 2 vòng lặp). Orchestrator Agent chịu trách nhiệm điều phối, giám sát, retry/fallback, tối ưu hóa luồng bất đồng bộ. FastAPI async + Supabase đủ handle 1K+ GV |
 | **Learning Signal** | Agent memory ghi nhớ preferences của từng GV (môn, template ưa thích, phong cách); Log edit patterns → cải thiện prompt theo thời gian |
+
+---
+
+
+---
+
+## 1.1. Tối ưu kiến trúc multi-agent
+
+- **Orchestrator Agent**: Điều phối pipeline, giám sát tiến trình, retry/fallback khi lỗi, log trạng thái, tối ưu hóa bất đồng bộ (các agent có thể chạy song song khi phù hợp).
+- **Chuẩn hóa giao tiếp**: Các agent giao tiếp qua message/event bus hoặc task queue, input/output rõ ràng, giảm phụ thuộc lẫn nhau.
+- **Tối ưu tài nguyên**: Hỗ trợ scale agent động, cache kết quả trung gian, tận dụng container/k8s nếu mở rộng lớn.
+- **Tối ưu trải nghiệm**: Phản hồi nhanh với kết quả tạm thời, cho phép can thiệp thủ công từng bước, realtime update.
+- **Tối ưu kiểm chuẩn GDPT 2018**: Rule kiểm tra tự động, cập nhật động, tích hợp AI phát hiện lỗi logic/thiếu sót.
 
 ---
 
@@ -100,56 +114,45 @@ Hệ thống chỉ kiểm tra đúng theo **template chuẩn của Bộ GD&ĐT**
 
 ### 6.1 Agent Roster
 
-| Agent | Role | Model Strategy | Input | Output |
-|---|---|---|---|---|
-| **Orchestrator** | Điều phối toàn bộ pipeline, quản lý state | Rule-based + LLM routing | User request JSON | Task graph + routing decision |
-| **Intake Agent** | Parse & validate input, extract từ file PDF/DOCX, kiểm tra scope (chỉ giáo án) | Fast LLM + PDF parser | Raw user input | Normalized JSON payload HOẶC `out_of_scope_flag` |
-| **RAG Agent** | Truy xuất nội dung từ CSDL SGK; nếu confidence thấp → sinh `clarification_questions` | Embedding search (pgvector) | Môn + Bài + Lớp | Chunks kiến thức + `low_confidence: bool` + `clarification_questions[]` |
-| **Generator Agent** | Sinh giáo án theo template GDPT 2018 | GPT-4o / Gemini 1.5 Pro (fallback) | Normalized input + RAG context + Template | Draft lesson plan JSON |
-| **Quality Checker Agent** | *(Gộp từ Critique + Compliance)* Kiểm tra đủ heading GDPT 2018 (rule-based) + chất lượng nội dung (LLM) | GPT-4o-mini / Claude Haiku | Draft lesson plan | Pass/Fail + structured error list + suggestions |
-| **Editor Agent** | Sửa giáo án theo yêu cầu cụ thể, lock phần ngoài scope | GPT-4o | Existing plan + edit prompt + section_id | Updated section JSON |
-| **Formatter Agent** | Xuất DOCX từ JSON chuẩn. Nếu fail → xuất template trắng | Deterministic (python-docx) | Final lesson plan JSON | DOCX file |
+| Agent                | Role / Chức năng chính                                                                 | Model/Tech           | Input chính                                    | Output chính                                    |
+|----------------------|--------------------------------------------------------------------------------------|----------------------|------------------------------------------------|-------------------------------------------------|
+| **Orchestrator Agent** | Điều phối toàn bộ pipeline, quản lý state, retry/fallback, tối ưu bất đồng bộ, log tiến trình. Cho phép mở rộng agent mới dễ dàng. | Rule-based + LLM routing | User request JSON, trạng thái các agent         | Task graph, routing, trạng thái, error handling |
+| **Intake Agent**     | Parse & validate input, extract từ file PDF/DOCX, kiểm tra scope (chỉ giáo án)        | Fast LLM + PDF parser | Raw user input                                 | Normalized JSON payload hoặc `out_of_scope_flag` |
+| **RAG Agent**        | Truy xuất nội dung từ CSDL SGK; nếu confidence thấp → sinh `clarification_questions`  | Embedding search      | Môn + Bài + Lớp                                | Chunks kiến thức, `low_confidence`, `clarification_questions[]` |
+| **Generator Agent**  | Sinh giáo án theo template GDPT 2018, hỗ trợ fallback model, sinh nhiều phiên bản    | GPT-4o / Gemini 1.5 Pro (fallback) | Normalized input, RAG context, Template         | Draft lesson plan JSON                           |
+| **Quality Checker Agent** | Kiểm tra đủ heading GDPT 2018 (rule-based) + chất lượng nội dung (LLM), trả về structured diff, gợi ý sửa | GPT-4o-mini / Claude Haiku | Draft lesson plan                              | Pass/Fail, structured error list, suggestions     |
+| **Clarification Agent** | Hỏi lại GV khi thiếu thông tin, tổng hợp câu hỏi, nhận phản hồi bổ sung             | LLM + rule           | Context thiếu, câu hỏi cần làm rõ               | Clarification Q&A, context bổ sung               |
+| **Editor Agent**     | Sửa giáo án theo yêu cầu cụ thể, lock phần ngoài scope, diff trước/sau              | GPT-4o               | Existing plan, edit prompt, section_id          | Updated section JSON, diff                       |
+| **Formatter Agent**  | Xuất DOCX từ JSON chuẩn, validate schema, fallback template trắng nếu lỗi           | python-docx          | Final lesson plan JSON                          | DOCX file, error report nếu fail                  |
 
-### 6.2 Multi-Agent Workflow
+
+### 6.2 Multi-Agent Workflow (Orchestrator-centric, tối ưu hóa)
+
 
 ```
 [User Input]
-     │
-     ▼
-[Intake Agent] ──parse & validate──► [Normalized JSON]
-     │                                        │
-     │ (out_of_scope?)                        │
-     ├─ YES ──► [Từ chối, gợi ý quay lại]   │
-     │                                        ▼
-     │                               [RAG Agent]
-     │                                        │
-     │                          (low_confidence?)
-     │                                        │
-     │                          ├─ YES ──► [Hỏi lại GV] ◄── upload thêm tài liệu
-     │                          │               │
-     │                          │               └── GV bổ sung → tiếp tục
-     │                          │
-     │                          └─ OK ──► [Generator Agent] ◄────────────────────┐
-     │                                          │ Draft v1                        │
-     │                                          ▼                                 │
-     │                               [Quality Checker Agent]                      │
-     │                                          │                                 │ Revise
-     │                               ├─ PASSED ──► [Formatter Agent]             │
-     │                               │                    │                      │
-     │                               │                    ▼                      │
-     │                               │             [DOCX Output]                 │
-     │                               │                                           │
-     │                               └─ FAILED (iteration < 2) ─────────────────┘
-     │                                        │
-     │                               (iteration >= 2)
-     │                                        │
-     │                               [Retry với backoff 5s]
-     │                                        │
-     │                               [Fallback Model]
-     │                                        │
-     │                               (vẫn fail?)
-     │                                        │
-     └─────────────────────────────► [Template Trắng + Error Report]
+  │
+  ▼
+[Orchestrator Agent]
+  │
+  ├─► [Intake Agent] ─parse/validate→ [Normalized JSON]
+  │         │
+  │         ├─ out_of_scope? → [Từ chối, gợi ý quay lại]
+  │         └─ OK → [RAG Agent] ─retrieval→ [RAG context]
+  │                        │
+  │                        ├─ low_confidence? → [Clarification Agent] ─► hỏi lại GV, nhận bổ sung
+  │                        └─ OK → [Generator Agent] (có thể song song nhiều bản nháp)
+  │                                         │
+  │                                 [Quality Checker Agent] (song song/checkpoint)
+  │                                         │
+  │                                 ├─ PASSED → [Formatter Agent] → [DOCX Output]
+  │                                 └─ FAILED (iteration < 2) → [Generator Agent] (revise)
+  │                                         │
+  │                                 (iteration >= 2) → [Retry/backoff] → [Fallback Model]
+  │                                         │
+  │                                 (vẫn fail?) → [Formatter Agent] (template trắng + error report)
+  ▼
+[Orchestrator tổng hợp kết quả, log trạng thái, trả về frontend]
 ```
 
 ### 6.3 Lesson Plan JSON Schema

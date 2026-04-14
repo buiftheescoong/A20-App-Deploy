@@ -4,37 +4,47 @@
 
 ---
 
+
 ## 1. Tổng quan kiến trúc hệ thống
 
 ```
 ┌─────────────────────────────────────────────────────────────────┐
-│                        FRONTEND (Next.js)                        │
-│   [Form nhập liệu] [Realtime status] [Preview] [Export button]  │
-└───────────────────────────┬─────────────────────────────────────┘
+│                        FRONTEND (Next.js)                      │
+│   [Form nhập liệu] [Realtime status] [Preview] [Export]        │
+└───────────────────────────┬────────────────────────────────────┘
                             │ HTTP / WebSocket
-┌───────────────────────────▼─────────────────────────────────────┐
-│                  BACKEND ORCHESTRATION (FastAPI)                  │
-│  [Auth Middleware] [Task Queue] [Agent Orchestrator] [WebSocket] │
-└──────────┬──────────────────────────────────────┬───────────────┘
+┌───────────────────────────▼────────────────────────────────────┐
+│                  BACKEND ORCHESTRATION (FastAPI)               │
+│  [Auth Middleware] [Task Queue] [Orchestrator Agent] [WS]      │
+└──────────┬──────────────────────────────────────┬─────────────┘
            │                                       │
-┌──────────▼──────────┐               ┌────────────▼──────────────┐
-│  AI AGENT PIPELINE  │               │   SUPABASE (Database)      │
-│  ┌───────────────┐  │               │  [PostgreSQL + pgvector]   │
-│  │ Intake Agent  │  │               │  [Auth / RLS]              │
-│  ├───────────────┤  │               │  [Storage: DOCX]           │
-│  │   RAG Agent   │  │◄──────────────│  [Realtime subscriptions]  │
-│  ├───────────────┤  │               │  [user_preferences]        │
-│  │ Generator     │  │               └───────────────────────────-┘
-│  ├───────────────┤  │
-│  │ Quality       │  │
-│  │ Checker       │  │
-│  ├───────────────┤  │
-│  │ Editor        │  │
-│  ├───────────────┤  │
-│  │ Formatter     │  │
-│  └───────────────┘  │
-└─────────────────────┘
+┌──────────▼────────────┐               ┌──────────▼─────────────┐
+│   MULTI-AGENT PIPELINE│               │   SUPABASE (DB)        │
+│  ┌───────────────┐    │               │  [PostgreSQL+vector]   │
+│  │ Intake Agent  │    │               │  [Auth / RLS]          │
+│  ├───────────────┤    │◄──────────────│  [Storage: DOCX]       │
+│  │   RAG Agent   │    │               │  [Realtime subs]       │
+│  ├───────────────┤    │               │  [user_preferences]    │
+│  │ Generator     │    │               └───────────────────────┘
+│  ├───────────────┤    │
+│  │ QualityCheck  │    │
+│  ├───────────────┤    │
+│  │ Clarification │    │
+│  ├───────────────┤    │
+│  │ Editor        │    │
+│  ├───────────────┤    │
+│  │ Formatter     │    │
+│  └───────────────┘    │
+└───────────────────────┘
 ```
+
+**Orchestrator Agent** là trung tâm điều phối, giám sát tiến trình, retry/fallback, tối ưu hóa bất đồng bộ (các agent có thể chạy song song khi phù hợp), log trạng thái, mở rộng dễ dàng.
+
+**Tối ưu hệ thống:**
+- Giao tiếp agent qua message/event bus hoặc task queue, input/output rõ ràng, giảm phụ thuộc lẫn nhau.
+- Tự động scale agent, cache kết quả trung gian, tận dụng container/k8s nếu mở rộng lớn.
+- Phản hồi nhanh với kết quả tạm thời, cho phép can thiệp thủ công từng bước, realtime update.
+- Rule kiểm tra tự động, cập nhật động, tích hợp AI phát hiện lỗi logic/thiếu sót.
 
 **Tech Stack**:
 | Layer | Technology | Lý do chọn |
