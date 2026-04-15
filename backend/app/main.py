@@ -15,7 +15,7 @@ from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 
 from app.config import settings
-from app.api import generate, clarification, check, edit, lesson_plans, kb
+from app.api import generate, stream, chat, check, lesson_plans, kb
 
 # ─── Logging ──────────────────────────────────────────────────────
 
@@ -97,9 +97,9 @@ async def auth_middleware(request: Request, call_next):
 # ─── Routes ───────────────────────────────────────────────────────
 
 app.include_router(generate.router, tags=["Generate"])
-app.include_router(clarification.router, tags=["Clarification"])
+app.include_router(stream.router, tags=["Stream"])
+app.include_router(chat.router, tags=["Chat"])
 app.include_router(check.router, tags=["Quality Check"])
-app.include_router(edit.router, tags=["Edit"])
 app.include_router(lesson_plans.router, tags=["Lesson Plans"])
 app.include_router(kb.router, tags=["Knowledge Base"])
 

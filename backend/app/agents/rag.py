@@ -76,23 +76,23 @@ async def run_rag(
     grade: str,
     topic: str,
     objectives: list[str] = None,
+    user_doc_chunks: list[str] = None,
 ) -> dict:
     """
-    Run the RAG retrieval pipeline.
-
-    Returns:
-        dict with:
-        - rag_context: list of retrieved chunks
-        - low_confidence: bool
-        - clarification_questions: list[str] (if low_confidence)
-        - top_score: float
+    RAG step: Retrieve relevant context from Supabase VectorDB and merge with user docs.
+    Returns context, confidence flag, and any clarification questions.
     """
+    user_doc_chunks = user_doc_chunks or []
     chunks, top_score = await search_knowledge_base(subject, grade, topic)
+
+    # Merge vector results with user-provided chunks (if any)
+    # User chunks get higher priority (added first)
+    context = user_doc_chunks + chunks
 
     low_confidence = top_score < settings.RAG_CONFIDENCE_THRESHOLD
 
     result = {
-        "rag_context": chunks,
+        "rag_context": context,
         "top_score": top_score,
         "low_confidence": low_confidence,
         "clarification_questions": [],

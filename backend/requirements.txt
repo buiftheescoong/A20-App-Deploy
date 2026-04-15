@@ -25,6 +25,7 @@ pdfplumber==0.11.0
 # ─── Utilities ─────────────────────────────────────────────────────
 httpx==0.27.0
 python-multipart==0.0.9
+sse-starlette>=2.0.0
 
 # ─── Dev Tools (Harness & Testing) ────────────────────────────────
 black==24.4.2

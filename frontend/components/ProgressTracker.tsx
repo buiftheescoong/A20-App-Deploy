@@ -3,6 +3,7 @@
 interface ProgressTrackerProps {
   currentStep: string;
   status: string;
+  label?: string;
   minimal?: boolean;
 }
 
@@ -20,7 +21,8 @@ function getStepStatus(
   status: string
 ): 'completed' | 'active' | 'pending' {
   const stepOrder = STEPS.map((s) => s.key);
-  const currentIdx = stepOrder.indexOf(mapProgressToStep(currentStep));
+  const mapped = mapProgressToStep(currentStep);
+  const currentIdx = stepOrder.indexOf(mapped);
   const stepIdx = stepOrder.indexOf(stepKey);
 
   if (status === 'completed' || status === 'failed') return 'completed';
@@ -37,10 +39,14 @@ function mapProgressToStep(progressStep: string): string {
     rag: 'rag',
     rag_done: 'generating',
     clarification_needed: 'rag',
+    clarifying: 'rag',
     generating: 'generating',
-    draft_ready: 'quality_checking',
+    markdown_ready: 'quality_checking',
+    json_converting: 'quality_checking',
     quality_checking: 'quality_checking',
     quality_done: 'exporting',
+    refining: 'generating',
+    qa: 'generating',
     retrying: 'generating',
     exporting: 'exporting',
     export_done: 'exporting',
@@ -49,13 +55,15 @@ function mapProgressToStep(progressStep: string): string {
   return map[progressStep] || 'intake';
 }
 
-export default function ProgressTracker({ currentStep, status, minimal }: ProgressTrackerProps) {
+export default function ProgressTracker({ currentStep, status, label, minimal }: ProgressTrackerProps) {
   if (minimal) {
     const activeStep = STEPS.find(s => getStepStatus(s.key, currentStep, status) === 'active') || STEPS[0];
     return (
       <div className="flex items-center gap-2 px-4 py-1.5 bg-gray-50 rounded-full border border-gray-100">
         <span className="animate-pulse w-2 h-2 rounded-full bg-blue-500"></span>
-        <span className="text-[10px] font-bold text-gray-500 uppercase tracking-widest">{activeStep.label}...</span>
+        <span className="text-[10px] font-bold text-gray-500 uppercase tracking-widest">
+            {label || `${activeStep.label}...`}
+        </span>
       </div>
     );
   }

@@ -45,9 +45,14 @@ async def list_lesson_plans(
 @router.get("/api/lesson-plans/{plan_id}")
 async def get_lesson_plan_detail(plan_id: str):
     """
-    Get a single lesson plan by ID.
+    Get a single lesson plan by ID or Task ID.
     """
+    from app.database import get_lesson_plan_by_task_id
+    
     plan = get_lesson_plan(plan_id)
+    if not plan:
+        plan = get_lesson_plan_by_task_id(plan_id)
+        
     if not plan:
         raise HTTPException(status_code=404, detail="Lesson plan not found")
 

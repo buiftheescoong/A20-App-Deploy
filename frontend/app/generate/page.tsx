@@ -27,8 +27,20 @@ export default function GeneratePage() {
   const [topic, setTopic] = useState('');
   const [objectives, setObjectives] = useState('');
   const [teachingModel, setTeachingModel] = useState<'5E' | '3-phase'>('5E');
+  const [files, setFiles] = useState<File[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files) {
+      const newFiles = Array.from(e.target.files);
+      setFiles((prev) => [...prev, ...newFiles]);
+    }
+  };
+
+  const removeFile = (index: number) => {
+    setFiles((prev) => prev.filter((_, i) => i !== index));
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -41,18 +53,21 @@ export default function GeneratePage() {
     setError('');
 
     try {
-      const result = await generateLessonPlan({
-        subject,
-        grade,
-        topic,
-        objectives: objectives
-          .split('\n')
-          .map((o) => o.trim())
-          .filter(Boolean),
-        teaching_model: teachingModel,
-      });
+      const result = await generateLessonPlan(
+        {
+          subject,
+          grade,
+          topic,
+          objectives: objectives
+            .split('\n')
+            .map((o) => o.trim())
+            .filter(Boolean),
+          teaching_model: teachingModel,
+        },
+        files
+      );
 
-      router.push(`/generate/${result.task_id}`);
+      router.push(`/generate/${result.plan_id}`);
     } catch (err: any) {
       setError(err.message || 'Đã xảy ra lỗi khi tạo giáo án');
       setLoading(false);
@@ -218,6 +233,79 @@ export default function GeneratePage() {
                   </div>
                 </label>
               </div>
+            </div>
+
+            {/* File Upload Section */}
+            <div>
+              <label className="block text-sm font-semibold text-gray-700 mb-2">
+                Tài liệu tham khảo (Tùy chọn)
+              </label>
+              <div className="border-2 border-dashed border-gray-200 rounded-xl p-6 hover:border-blue-400 transition-colors bg-gray-50/50">
+                <input
+                  type="file"
+                  multiple
+                  onChange={handleFileChange}
+                  className="hidden"
+                  id="file-upload"
+                  accept=".pdf,.docx,.doc,.txt"
+                />
+                <label htmlFor="file-upload" className="flex flex-col items-center cursor-pointer">
+                  <div className="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center text-blue-600 mb-3">
+                    <svg
+                      className="w-5 h-5"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      stroke="currentColor"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M12 4v16m8-8H4"
+                      />
+                    </svg>
+                  </div>
+                  <span className="text-sm font-medium text-gray-600">
+                    Thêm file (PDF, Word, Text)
+                  </span>
+                  <span className="text-xs text-gray-400 mt-1">
+                    Kéo thả hoặc nhấp để chọn
+                  </span>
+                </label>
+              </div>
+
+              {files.length > 0 && (
+                <div className="mt-4 space-y-2">
+                  {files.map((file, idx) => (
+                    <div
+                      key={idx}
+                      className="flex items-center justify-between p-3 bg-white rounded-lg border border-gray-100 shadow-sm transition-all hover:border-blue-200"
+                    >
+                      <div className="flex items-center gap-3 overflow-hidden">
+                        <div className="flex-shrink-0 w-8 h-8 rounded bg-blue-50 flex items-center justify-center text-blue-500 text-xs font-bold uppercase">
+                          {file.name.split('.').pop() || 'file'}
+                        </div>
+                        <span className="text-sm text-gray-700 truncate font-medium">
+                          {file.name}
+                        </span>
+                        <span className="text-xs text-gray-400 flex-shrink-0">
+                          ({(file.size / 1024).toFixed(1)} KB)
+                        </span>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => removeFile(idx)}
+                        className="text-gray-400 hover:text-red-500 transition-colors p-1"
+                        aria-label="Xóa file"
+                      >
+                        <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                        </svg>
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              )}
             </div>
 
             {/* Error */}

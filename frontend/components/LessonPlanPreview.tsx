@@ -3,14 +3,16 @@ import TypewriterText from './TypewriterText';
 interface LessonPlanPreviewProps {
   plan: {
     id?: string;
-    subject: string;
-    grade: string;
-    topic: string;
-    teaching_model: string;
-    objectives: string[];
+    subject?: string;
+    grade?: string;
+    topic?: string;
+    teaching_model?: string;
+    objectives?: string[];
     content_json?: any;
     compliance_status?: string;
+    docx_url?: string;
   };
+  streamingMarkdown?: string;
   isStreaming?: boolean;
 }
 
@@ -28,14 +30,37 @@ const SECTION_LABELS_3PHASE: Record<string, string> = {
   practice: 'Hoạt động 3: LUYỆN TẬP',
 };
 
-export default function LessonPlanPreview({ plan, isStreaming }: LessonPlanPreviewProps) {
+export default function LessonPlanPreview({ plan, streamingMarkdown, isStreaming }: LessonPlanPreviewProps) {
   const content = plan.content_json;
-  if (!content && !isStreaming) return null;
+  
+  // Show nothing only if both sources are empty
+  if (!content && !streamingMarkdown && !isStreaming) return null;
 
+  // -- Render Phase 1: Streaming Markdown --
+  if (streamingMarkdown) {
+    return (
+      <div className="bg-white rounded-xl shadow-2xl border border-gray-100 overflow-hidden min-h-[600px] flex flex-col animate-fade-in relative">
+        <div className="absolute top-0 right-0 p-4">
+           <div className="flex items-center gap-2 px-3 py-1 bg-blue-50 text-blue-600 rounded-full text-[10px] font-bold uppercase tracking-wider animate-pulse">
+              <span className="w-2 h-2 rounded-full bg-blue-500"></span>
+              Đang soạn thảo...
+           </div>
+        </div>
+        <div className="p-12 prose prose-sm max-w-none">
+          <div className="whitespace-pre-wrap font-serif text-gray-800 leading-relaxed text-lg">
+            {streamingMarkdown}
+            <span className="inline-block w-1.5 h-5 bg-blue-500 ml-1 animate-pulse align-middle"></span>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // -- Render Phase 2: Structured UI --
   const metadata = content?.metadata || plan || {};
   const sections = content?.sections || {};
   const compliance = content?.compliance || {};
-  const teachingModel = metadata.teaching_model || plan.teaching_model;
+  const teachingModel = metadata.teaching_model || plan.teaching_model || '5E';
   const sectionLabels = teachingModel === '5E' ? SECTION_LABELS_5E : SECTION_LABELS_3PHASE;
 
   return (
@@ -69,13 +94,13 @@ export default function LessonPlanPreview({ plan, isStreaming }: LessonPlanPrevi
             <p className="text-[10px] font-bold text-gray-400 uppercase tracking-tighter mb-1">
               Môn học
             </p>
-            <p className="font-semibold text-gray-800">{metadata.subject}</p>
+            <p className="font-semibold text-gray-800">{metadata.subject || 'N/A'}</p>
           </div>
           <div>
             <p className="text-[10px] font-bold text-gray-400 uppercase tracking-tighter mb-1">
               Lớp
             </p>
-            <p className="font-semibold text-gray-800">{metadata.grade}</p>
+            <p className="font-semibold text-gray-800">{metadata.grade || 'N/A'}</p>
           </div>
           <div>
             <p className="text-[10px] font-bold text-gray-400 uppercase tracking-tighter mb-1">
@@ -181,3 +206,4 @@ export default function LessonPlanPreview({ plan, isStreaming }: LessonPlanPrevi
     </div>
   );
 }
+

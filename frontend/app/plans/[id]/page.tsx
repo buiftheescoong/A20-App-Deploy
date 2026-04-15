@@ -8,7 +8,7 @@ import { LessonPlanResponse } from '@/lib/types';
 import LessonPlanPreview from '@/components/LessonPlanPreview';
 import ExportButton from '@/components/ExportButton';
 
-import RefinementChatUI from '@/components/RefinementChatUI';
+import ChatPanel from '@/components/ChatPanel';
 
 export default function PlanDetailPage() {
   const { id } = useParams();
@@ -36,8 +36,13 @@ export default function PlanDetailPage() {
     }
   }
 
-  const handleRefine = (message: string) => {
-    console.log('Refinement requested for existing plan:', message);
+  const handleRefine = (message: string, files: File[]) => {
+    console.log('Refinement requested for existing plan:', message, files);
+    // TODO: Connect this to the same logic as the generated page, 
+    // or just let them router.push to the /generate/${id} page!
+    if (plan && plan.id) {
+        router.push(`/generate/${plan.id}`);
+    }
   };
 
   if (loading) {
@@ -113,7 +118,7 @@ export default function PlanDetailPage() {
               <div className="p-6 pb-2">
                  <h3 className="text-xs font-black text-gray-400 uppercase tracking-widest">Hiệu chỉnh với AI</h3>
               </div>
-              <RefinementChatUI onSendMessage={handleRefine} />
+              <ChatPanel messages={[]} onSendMessage={handleRefine} />
           </div>
         </aside>
 

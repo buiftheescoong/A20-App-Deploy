@@ -54,50 +54,79 @@ export interface GeneratePayload {
   teaching_model: '5E' | '3-phase';
 }
 
+/**
+ * Start lesson plan generation with optional file uploads.
+ * Uses multipart/form-data.
+ */
 export async function generateLessonPlan(
-  data: GeneratePayload
-): Promise<{ task_id: string; status: string }> {
-  return apiFetch('/api/generate', {
-    method: 'POST',
-    body: JSON.stringify(data),
+  data: GeneratePayload,
+  files: File[] = []
+): Promise<{ plan_id: string; status: string }> {
+  const formData = new FormData();
+  formData.append('subject', data.subject);
+  formData.append('grade', data.grade);
+  formData.append('topic', data.topic);
+  formData.append('objectives', JSON.stringify(data.objectives));
+  formData.append('teaching_model', data.teaching_model);
+  
+  files.forEach((file) => {
+    formData.append('files', file);
   });
-}
 
-// ─── Status ──────────────────────────────────────────────────────
-
-export interface StatusResponse {
-  task_id: string;
-  status: 'pending' | 'clarifying' | 'generating' | 'retrying' | 'completed' | 'failed';
-  progress_step?: string;
-  lesson_plan_id?: string;
-  clarification_needed: boolean;
-  is_blank_template: boolean;
-  error?: string;
-}
-
-export async function getStatus(taskId: string): Promise<StatusResponse> {
-  return apiFetch(`/api/status/${taskId}`);
-}
-
-// ─── Clarification ──────────────────────────────────────────────
-
-export interface ClarificationResponse {
-  task_id: string;
-  questions: string[];
-}
-
-export async function getClarificationQuestions(taskId: string): Promise<ClarificationResponse> {
-  return apiFetch(`/api/clarification/${taskId}`);
-}
-
-export async function submitClarificationAnswers(
-  taskId: string,
-  answers: Array<{ question: string; answer: string }>
-): Promise<{ task_id: string; status: string }> {
-  return apiFetch(`/api/clarification/${taskId}`, {
+  const token = await getAuthToken();
+  const res = await fetch(`${API_BASE}/api/generate`, {
     method: 'POST',
-    body: JSON.stringify({ answers }),
+    headers: token ? { Authorization: `Bearer ${token}` } : {},
+    body: formData,
   });
+
+  if (!res.ok) {
+    const error = await res.json().catch(() => ({ detail: 'Unknown error' }));
+    throw new Error(error.detail || `API error: ${res.status}`);
+  }
+
+  return res.json();
+}
+
+// ─── SSE Streaming ───────────────────────────────────────────────
+
+/**
+ * Opens an SSE connection to stream lesson plan progress and content.
+ */
+export function openSSEStream(planId: string): EventSource {
+  // EventSource doesn't natively support headers, so we pass token via query if needed
+  // Or if using cookies/sessions, it just works. 
+  // For now, let's assume the backend allows it or we'd need a library like fetch-event-source
+  return new EventSource(`${API_BASE}/api/stream/${planId}`);
+}
+
+// ─── Chat / Refinement ───────────────────────────────────────────
+
+/**
+ * Send a chat message (question or refinement) with optional files.
+ */
+export async function sendChatMessage(
+  planId: string,
+  message: string,
+  files: File[] = []
+): Promise<void> {
+  const formData = new FormData();
+  formData.append('message', message);
+  files.forEach((file) => {
+    formData.append('files', file);
+  });
+
+  const token = await getAuthToken();
+  const res = await fetch(`${API_BASE}/api/chat/${planId}`, {
+    method: 'POST',
+    headers: token ? { Authorization: `Bearer ${token}` } : {},
+    body: formData,
+  });
+
+  if (!res.ok) {
+    const error = await res.json().catch(() => ({ detail: 'Unknown error' }));
+    throw new Error(error.detail || `API error: ${res.status}`);
+  }
 }
 
 // ─── Lesson Plans ────────────────────────────────────────────────
@@ -154,19 +183,3 @@ export async function exportDocx(
   return apiFetch(`/api/export/${planId}`, { method: 'POST' });
 }
 
-// ─── Edit ────────────────────────────────────────────────────────
-
-export async function editSection(
-  lessonPlanId: string,
-  sectionId: string,
-  editPrompt: string
-): Promise<any> {
-  return apiFetch('/api/edit', {
-    method: 'POST',
-    body: JSON.stringify({
-      lesson_plan_id: lessonPlanId,
-      section_id: sectionId,
-      edit_prompt: editPrompt,
-    }),
-  });
-}
