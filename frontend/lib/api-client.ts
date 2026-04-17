@@ -50,7 +50,7 @@ export const api = {
       return {
         task_id: taskId,
         status: 'completed',
-        progress_step: 'completed',
+        progress_step: 'export_done',
         lesson_plan_id: 'mock-plan-id',
         clarification_needed: false,
         is_blank_template: false,
