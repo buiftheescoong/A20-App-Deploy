@@ -130,6 +130,7 @@ export default function GenerateProgressPage() {
     return () => {
       if (eventSourceRef.current) eventSourceRef.current.close();
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [planId]);
 
   const handleSendMessage = async (message: string, files: File[]) => {

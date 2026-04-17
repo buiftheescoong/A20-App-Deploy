@@ -21,6 +21,7 @@ export default function PlanDetailPage() {
     if (id) {
       loadPlan();
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [id]);
 
   async function loadPlan() {

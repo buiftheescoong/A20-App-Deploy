@@ -110,7 +110,7 @@ export default function ChatPanel({
                   <div className="mt-4 space-y-2">
                     {m.questions.map((q, qIdx) => (
                       <div key={qIdx} className="p-3 bg-white/50 rounded-lg border border-yellow-200/50 text-xs font-medium italic">
-                        "{q}"
+                        &quot;{q}&quot;
                       </div>
                     ))}
                   </div>
