@@ -49,7 +49,7 @@ export default function GenerateForm({ onSubmit }: GenerateFormProps) {
       };
 
       const result = await generateLessonPlan(payload);
-      onSubmit(result.task_id);
+      onSubmit(result.plan_id);
     } catch (err: any) {
       setError(err.message || 'Đã xảy ra lỗi');
     } finally {
