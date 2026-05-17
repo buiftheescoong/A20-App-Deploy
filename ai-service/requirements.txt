@@ -1,0 +1,37 @@
+# AI Service Dependencies
+# Framework
+fastapi==0.115.*
+uvicorn[standard]==0.34.*
+sse-starlette==2.*
+
+# LangChain / LangGraph
+langchain-core==0.3.*
+langgraph==0.2.*
+langchain-openai==0.2.*
+langsmith==0.1.*
+
+# LLM Providers
+openai==1.*
+google-generativeai==0.8.*
+
+# Logging
+structlog==24.*
+
+# File Parsing
+pdfplumber==0.11.*
+python-docx==1.*
+
+# Database
+asyncpg==0.29.*
+pgvector==0.3.*
+
+# Utils
+python-multipart==0.0.*
+python-dotenv==1.*
+pydantic-settings==2.*
+httpx==0.27.*
+
+# Testing
+pytest==8.*
+pytest-asyncio==0.24.*
+

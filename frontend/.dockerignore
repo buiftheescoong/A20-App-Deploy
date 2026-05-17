@@ -1,0 +1,11 @@
+.env
+.env.*
+!.env.example
+.next
+dist
+node_modules
+npm-debug.log*
+*.log
+coverage
+.DS_Store
+Thumbs.db

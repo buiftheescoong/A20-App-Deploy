@@ -1,0 +1,1 @@
+# Standalone functions (no graph)

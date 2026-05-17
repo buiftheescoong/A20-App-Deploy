@@ -1,0 +1,77 @@
+services:
+  - type: web
+    name: a20-ai-service
+    env: python
+    rootDir: ai-service
+    plan: free
+    buildCommand: "pip install -r requirements.txt"
+    startCommand: "uvicorn app.main:app --host 0.0.0.0 --port $PORT"
+    envVars:
+      - key: DATABASE_URL
+        sync: false
+      - key: SUPABASE_URL
+        sync: false
+      - key: SUPABASE_SERVICE_KEY
+        sync: false
+      - key: SUPABASE_ANON_KEY
+        sync: false
+      - key: OPENAI_API_KEY
+        sync: false
+      - key: GOOGLE_API_KEY
+        sync: false
+      - key: AI_SERVICE_SECRET
+        sync: false
+
+  - type: web
+    name: a20-api-gateway
+    env: node
+    rootDir: api-gateway
+    plan: free
+    buildCommand: "npm ci && npm run build"
+    startCommand: "npm run start"
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: DATABASE_URL
+        sync: false
+      - key: SUPABASE_URL
+        sync: false
+      - key: SUPABASE_SERVICE_ROLE_KEY
+        sync: false
+      - key: SUPABASE_ANON_KEY
+        sync: false
+      - key: FRONTEND_URL
+        fromService:
+          type: web
+          name: a20-frontend-ui
+          envVarKey: RENDER_EXTERNAL_URL
+      - key: FRONTEND_ORIGINS
+        fromService:
+          type: web
+          name: a20-frontend-ui
+          envVarKey: RENDER_EXTERNAL_URL
+      - key: AI_SERVICE_URL
+        fromService:
+          type: web
+          name: a20-ai-service
+          envVarKey: RENDER_EXTERNAL_URL
+      - key: AI_SERVICE_SECRET
+        sync: false
+
+  - type: web
+    name: a20-frontend-ui
+    env: node
+    rootDir: frontend
+    plan: free
+    buildCommand: "npm ci && npm run build"
+    startCommand: "npm run start -- --port $PORT"
+    envVars:
+      - key: VITE_SUPABASE_URL
+        sync: false
+      - key: VITE_SUPABASE_ANON_KEY
+        sync: false
+      - key: VITE_API_BASE_URL
+        fromService:
+          type: web
+          name: a20-api-gateway
+          envVarKey: RENDER_EXTERNAL_URL

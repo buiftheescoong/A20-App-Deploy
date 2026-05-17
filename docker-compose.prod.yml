@@ -1,0 +1,47 @@
+services:
+  ai-service:
+    build:
+      context: .
+      dockerfile: ai-service/Dockerfile
+      target: prod
+    env_file:
+      - path: .env.docker
+        required: false
+    environment:
+      HOST: 0.0.0.0
+      PORT: 8000
+      RAW_RAG_DATA_DIR: /app/data/raw
+    ports:
+      - "8000:8000"
+
+  api-gateway:
+    build:
+      context: ./api-gateway
+      target: prod
+    env_file:
+      - path: .env.docker
+        required: false
+    environment:
+      PORT: 3001
+      NODE_ENV: production
+      AI_SERVICE_URL: http://ai-service:8000
+      FRONTEND_URL: http://localhost:8080
+      FRONTEND_ORIGINS: http://localhost:8080
+    ports:
+      - "3001:3001"
+    depends_on:
+      - ai-service
+
+  frontend:
+    build:
+      context: ./frontend
+      target: prod
+      args:
+        VITE_SUPABASE_URL: ${VITE_SUPABASE_URL}
+        VITE_SUPABASE_ANON_KEY: ${VITE_SUPABASE_ANON_KEY}
+        VITE_API_BASE_URL: ${VITE_API_BASE_URL:-http://localhost:3001}
+        VITE_USE_MOCK: ${VITE_USE_MOCK:-false}
+    ports:
+      - "8080:80"
+    depends_on:
+      - api-gateway
